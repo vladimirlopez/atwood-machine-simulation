@@ -557,13 +557,17 @@ class AtwoodMachine {
         ctx.closePath();
         ctx.fill();
         
-        // Label for gravity
+        // Label for gravity with white background
+        const gravLabelY = centerY + gravityLength / 2;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        ctx.fillRect(centerX + 8, gravLabelY - 18, 42, 28);
+        
         ctx.fillStyle = '#2c3e50';
-        ctx.font = 'bold 11px Arial';
+        ctx.font = 'bold 12px Arial';
         ctx.textAlign = 'left';
-        ctx.fillText(`${label}g`, centerX + 10, centerY + gravityLength / 2 - 5);
-        ctx.font = '10px Arial';
-        ctx.fillText(`${gravity.toFixed(1)}N`, centerX + 10, centerY + gravityLength / 2 + 8);
+        ctx.fillText(`${label}g`, centerX + 12, gravLabelY - 5);
+        ctx.font = 'bold 11px Arial';
+        ctx.fillText(`${gravity.toFixed(1)}N`, centerX + 12, gravLabelY + 8);
         
         // Draw tension arrow (upward from center - blue)
         ctx.strokeStyle = '#3498db';
@@ -584,13 +588,17 @@ class AtwoodMachine {
         ctx.closePath();
         ctx.fill();
         
-        // Label for tension
+        // Label for tension with white background
+        const tensLabelY = centerY - tensionLength / 2;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        ctx.fillRect(centerX + 8, tensLabelY - 18, 42, 28);
+        
         ctx.fillStyle = '#2c3e50';
-        ctx.font = 'bold 11px Arial';
+        ctx.font = 'bold 12px Arial';
         ctx.textAlign = 'left';
-        ctx.fillText('T', centerX + 10, centerY - tensionLength / 2 - 5);
-        ctx.font = '10px Arial';
-        ctx.fillText(`${this.tension.toFixed(1)}N`, centerX + 10, centerY - tensionLength / 2 + 8);
+        ctx.fillText('T', centerX + 12, tensLabelY - 5);
+        ctx.font = 'bold 11px Arial';
+        ctx.fillText(`${this.tension.toFixed(1)}N`, centerX + 12, tensLabelY + 8);
     }
     
     drawForceArrows(mass1X, mass1Y, mass2X, mass2Y) {
