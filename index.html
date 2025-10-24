@@ -32,19 +32,18 @@
         <div class="main-content">
             <div class="simulation-panel">
                 <div class="simulation-container">
-                    <canvas id="atwoodCanvas" width="700" height="600" role="img" aria-label="Atwood machine simulation showing two masses connected by a rope over a pulley"></canvas>
-                    
-                    <!-- Graphs Panel (initially hidden) -->
-                    <div id="graphsPanel" class="graphs-panel hidden">
-                        <h3>Real-Time Graphs</h3>
-                        <div class="graphs-container">
-                            <div class="graph-box">
-                                <canvas id="velocityGraph" width="340" height="200"></canvas>
-                                <p class="graph-label">Velocity vs Time</p>
+                    <div class="canvas-area">
+                        <canvas id="atwoodCanvas" width="800" height="700" role="img" aria-label="Atwood machine simulation showing two masses connected by a rope over a pulley"></canvas>
+                        
+                        <!-- Force Diagram Boxes -->
+                        <div class="force-diagrams hidden" id="forceDiagrams">
+                            <div class="force-box force-box-left">
+                                <h4>Mass 1 Forces</h4>
+                                <canvas id="forceCanvas1" width="120" height="180"></canvas>
                             </div>
-                            <div class="graph-box">
-                                <canvas id="accelerationGraph" width="340" height="200"></canvas>
-                                <p class="graph-label">Acceleration vs Time</p>
+                            <div class="force-box force-box-right">
+                                <h4>Mass 2 Forces</h4>
+                                <canvas id="forceCanvas2" width="120" height="180"></canvas>
                             </div>
                         </div>
                     </div>
@@ -114,19 +113,34 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Graphs Panel (below simulation) -->
+            <div id="graphsPanel" class="graphs-panel hidden">
+                <h3>Real-Time Graphs</h3>
+                <div class="graphs-container">
+                    <div class="graph-box">
+                        <canvas id="velocityGraph" width="500" height="250"></canvas>
+                        <p class="graph-label">Velocity vs Time</p>
+                    </div>
+                    <div class="graph-box">
+                        <canvas id="accelerationGraph" width="500" height="250"></canvas>
+                        <p class="graph-label">Acceleration vs Time</p>
+                    </div>
+                </div>
+            </div>
 
             <div class="info-panel">
-                <section class="info-section">
-                    <h2>What is an Atwood Machine?</h2>
-                    <p>
-                        An Atwood machine consists of two masses connected by an inextensible string 
-                        that passes over a frictionless pulley. It's a classic physics demonstration 
-                        used to study the laws of motion and acceleration.
-                    </p>
-                </section>
-
-                <section class="info-section">
-                    <h2>The Physics: System Approach</h2>
+                <!-- Tab Navigation -->
+                <div class="tab-navigation">
+                    <button class="tab-button active" data-tab="exploration">Guided Exploration</button>
+                    <button class="tab-button" data-tab="theory">Physics Theory</button>
+                </div>
+                
+                <!-- Tab Content -->
+                <div class="tab-content active" id="exploration-tab">
+                    <section class="info-section exploration-section">
+                        <h2>🔍 Guided Exploration</h2>
+                        <p class="exploration-intro">Try these experiments to deepen your understanding:</p>
                     <p>
                         We can analyze the Atwood machine using the <strong>system method</strong>, 
                         treating both masses together as a single system. This elegant approach 
@@ -269,9 +283,113 @@
                         </div>
                     </details>
                 </section>
+                </div>
+                
+                <!-- Theory Tab Content -->
+                <div class="tab-content" id="theory-tab">
+                    <section class="info-section">
+                        <h2>What is an Atwood Machine?</h2>
+                        <p>
+                            An Atwood machine consists of two masses connected by an inextensible string 
+                            that passes over a frictionless pulley. It's a classic physics demonstration 
+                            used to study the laws of motion and acceleration.
+                        </p>
+                    </section>
 
-                <section class="info-section">
-                    <h2>Try This!</h2>
+                    <section class="info-section">
+                        <h2>The Physics: System Approach</h2>
+                        <p>
+                            We can analyze the Atwood machine using the <strong>system method</strong>, 
+                            treating both masses together as a single system. This elegant approach 
+                            avoids dealing with tension forces internally.
+                        </p>
+                        <p>
+                            <strong>Sign Convention:</strong> We use the convention that <em>clockwise rotation is positive</em>. 
+                            This means positive velocity/acceleration corresponds to \(m_2\) moving down and \(m_1\) moving up.
+                        </p>
+                        
+                        <h3>Step 1: Define the System</h3>
+                        <p>
+                            Consider both masses (\(m_1\) and \(m_2\)) as one system. The only <em>external</em> 
+                            forces acting on this system are the gravitational forces on each mass.
+                        </p>
+                        
+                        <h3>Step 2: Find the Net Force (\(F_{\text{NET}}\))</h3>
+                        <p>
+                            If \(m_2 > m_1\), the net external force pulling the system is:
+                        </p>
+                        <div class="equation">
+                            $$F_{\text{NET}} = m_2g - m_1g = g(m_2 - m_1)$$
+                        </div>
+                        <p>
+                            The tension (\(F_T\)) is an <strong>internal force</strong> that cancels out when 
+                            considering the whole system—it pulls equally on both masses in opposite directions.
+                        </p>
+                        
+                        <h3>Step 3: Apply Newton's Second Law</h3>
+                        <p>
+                            The total mass of the system is \((m_1 + m_2)\), so:
+                        </p>
+                        <div class="equation">
+                            $$F_{\text{NET}} = (m_1 + m_2)a$$
+                        </div>
+                        <p>
+                            Combining our equations:
+                        </p>
+                        <div class="equation">
+                            $$g(m_2 - m_1) = (m_1 + m_2)a$$
+                        </div>
+                        <p>
+                            Solving for acceleration:
+                        </p>
+                        <div class="equation">
+                            $$a = \frac{g(m_2 - m_1)}{m_1 + m_2}$$
+                        </div>
+                        
+                        <h3>Finding Tension (\(F_T\))</h3>
+                        <p>
+                            To find the tension, we isolate one mass. For \(m_1\):
+                        </p>
+                        <div class="equation">
+                            $$F_T - m_1g = m_1a$$
+                        </div>
+                        <p>
+                            Substituting our expression for \(a\) and simplifying:
+                        </p>
+                        <div class="equation">
+                            $$F_T = \frac{2m_1m_2g}{m_1 + m_2}$$
+                        </div>
+                        <p>
+                            <small><em>Where \(g = 9.8 \, \text{m/s}^2\)</em></small>
+                        </p>
+                    </section>
+
+                    <section class="info-section">
+                        <h2>Key Insights</h2>
+                        <ul>
+                            <li>
+                                <strong>Direction of Acceleration vs. Motion:</strong> The acceleration tells us 
+                                how velocity is changing, not the direction of motion. An object can move upward 
+                                while accelerating downward (decelerating)!
+                            </li>
+                            <li>
+                                <strong>Equal Masses:</strong> When m₁ = m₂, the acceleration is zero. The system 
+                                moves with constant velocity (including zero velocity if starting from rest).
+                            </li>
+                            <li>
+                                <strong>Initial Velocity:</strong> Try setting different initial velocities to see 
+                                how the system behaves. Even if the calculated acceleration points one way, the 
+                                masses might initially move in the opposite direction!
+                            </li>
+                            <li>
+                                <strong>Frictionless Assumption:</strong> Real pulleys have friction and mass, 
+                                which affect the motion. This simulation uses the idealized case.
+                            </li>
+                        </ul>
+                    </section>
+
+                    <section class="info-section">
+                        <h2>Try This!</h2>
                     <ol>
                         <li>Set m₁ = 2 kg and m₂ = 3 kg with zero initial velocity. Observe m₂ accelerating downward.</li>
                         <li>Now set initial velocity to -5 m/s. Notice m₁ starts moving down even though acceleration points the other way!</li>
@@ -286,6 +404,7 @@
                         with negligible mass.</em>
                     </p>
                 </section>
+                </div>
             </div>
         </div>
 

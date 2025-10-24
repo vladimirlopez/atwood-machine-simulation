@@ -60,10 +60,10 @@ class AtwoodMachine {
         
         // Canvas dimensions
         this.centerX = this.canvasWidth / 2;
-        this.pulleyY = 100;
-        this.pulleyRadius = 35;
-        this.ropeLength = 220;
-        this.maxRopeLength = 200; // Maximum rope extension (blocks stop before touching pulley)
+        this.pulleyY = 120;
+        this.pulleyRadius = 40;
+        this.ropeLength = 260;
+        this.maxRopeLength = 240; // Maximum rope extension (blocks stop before touching pulley)
         
         // Initial positions
         this.mass1InitialY = this.pulleyY + this.ropeLength;
@@ -294,11 +294,105 @@ class AtwoodMachine {
         
         // Draw force arrows if enabled
         if (this.showForceArrows) {
-            this.drawForceArrows(mass1X, mass1Y, mass2X, mass2Y);
+            this.drawForceArrowsInBoxes();
         }
         
         // Draw labels
         this.drawLabels();
+    }
+    
+    drawForceArrowsInBoxes() {
+        // Draw force diagrams in separate canvases
+        const canvas1 = document.getElementById('forceCanvas1');
+        const canvas2 = document.getElementById('forceCanvas2');
+        
+        if (canvas1 && canvas2) {
+            this.drawForceDiagram(canvas1, this.mass1, this.tension, 'm₁');
+            this.drawForceDiagram(canvas2, this.mass2, this.tension, 'm₂');
+        }
+    }
+    
+    drawForceDiagram(canvas, mass, tension, label) {
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+        
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const boxSize = 30;
+        const arrowScale = 2.5;
+        const maxArrowLength = 60;
+        
+        // Draw mass box
+        ctx.fillStyle = label === 'm₁' ? '#2fa4e7' : '#e74c3c';
+        ctx.fillRect(centerX - boxSize/2, centerY - boxSize/2, boxSize, boxSize);
+        ctx.strokeStyle = '#495057';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(centerX - boxSize/2, centerY - boxSize/2, boxSize, boxSize);
+        
+        // Draw label on box
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 14px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(label, centerX, centerY);
+        
+        // Calculate arrow lengths
+        const gravity = mass * this.g;
+        const gravityLength = Math.min(gravity * arrowScale, maxArrowLength);
+        const tensionLength = Math.min(tension * arrowScale, maxArrowLength);
+        
+        // Draw gravity arrow (downward)
+        this.drawForceArrowInDiagram(ctx, centerX, centerY + boxSize/2, 0, gravityLength, '#e74c3c', `${gravity.toFixed(1)}N`, 'Fg');
+        
+        // Draw tension arrow (upward)
+        this.drawForceArrowInDiagram(ctx, centerX, centerY - boxSize/2, 0, -tensionLength, '#3498db', `${tension.toFixed(1)}N`, 'T');
+    }
+    
+    drawForceArrowInDiagram(ctx, x, y, dx, dy, color, valueLabel, forceLabel) {
+        if (Math.abs(dy) < 2) return;
+        
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 2.5;
+        
+        // Draw arrow line
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + dx, y + dy);
+        ctx.stroke();
+        
+        // Draw arrowhead
+        const angle = Math.atan2(dy, dx);
+        const headLength = 8;
+        ctx.beginPath();
+        ctx.moveTo(x + dx, y + dy);
+        ctx.lineTo(
+            x + dx - headLength * Math.cos(angle - Math.PI / 6),
+            y + dy - headLength * Math.sin(angle - Math.PI / 6)
+        );
+        ctx.lineTo(
+            x + dx - headLength * Math.cos(angle + Math.PI / 6),
+            y + dy - headLength * Math.sin(angle + Math.PI / 6)
+        );
+        ctx.closePath();
+        ctx.fill();
+        
+        // Draw labels
+        ctx.font = 'bold 11px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = color;
+        
+        const labelOffset = dy > 0 ? 15 : -15;
+        ctx.fillText(forceLabel, x + dx + 20, y + dy / 2);
+        ctx.font = '10px Arial';
+        ctx.fillText(valueLabel, x + dx + 20, y + dy / 2 + 12);
+        
+        ctx.restore();
     }
     
     drawVelocityArrow(x, y, velocity, color, label) {
@@ -413,7 +507,10 @@ class AtwoodMachine {
         this.ctx.textBaseline = 'middle';
         this.ctx.fillText(label, x, y - 8);
         this.ctx.font = '12px Arial';
-        this.ctx.fillText(mass.toFixed(1) + ' kg', x, y + 8);
+                this.ctx.fillText(mass.toFixed(1) + ' kg', x, y + 8);
+    }
+    
+    drawForceArrowsInBoxes() {
     }
     
     drawForceArrows(mass1X, mass1Y, mass2X, mass2Y) {
@@ -493,11 +590,9 @@ class AtwoodMachine {
         const labelX = 10;
         const labelY = this.canvasHeight - 30;
         
-        // Background box
+        // Background box and border (draw these first)
         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
         this.ctx.fillRect(labelX, labelY - 15, 280, 30);
-        
-        // Box border
         this.ctx.strokeStyle = '#495057';
         this.ctx.lineWidth = 1;
         this.ctx.strokeRect(labelX, labelY - 15, 280, 30);
@@ -508,7 +603,7 @@ class AtwoodMachine {
         this.ctx.textAlign = 'left';
         this.ctx.fillText('Sign Convention: Clockwise ⟳ = Positive (+)', labelX + 8, labelY + 3);
         
-        // Small rotating arrow indicator
+        // Small rotating arrow indicator (reset stroke style before drawing)
         const arrowX = labelX + 250;
         const arrowY = labelY;
         const arrowR = 10;
@@ -574,6 +669,12 @@ class AtwoodMachine {
     
     setShowForceArrows(show) {
         this.showForceArrows = show;
+        const forceDiagrams = document.getElementById('forceDiagrams');
+        if (show) {
+            forceDiagrams.classList.remove('hidden');
+        } else {
+            forceDiagrams.classList.add('hidden');
+        }
         this.draw();
     }
     
@@ -815,3 +916,21 @@ pauseBtn.disabled = true;
 mass1Display.textContent = simulation.mass1.toFixed(1) + ' kg';
 mass2Display.textContent = simulation.mass2.toFixed(1) + ' kg';
 velocityDisplay.textContent = simulation.initialVelocity.toFixed(1) + ' m/s';
+
+// Tab switching functionality
+const tabButtons = document.querySelectorAll('.tab-button');
+const tabContents = document.querySelectorAll('.tab-content');
+
+tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const tabName = button.getAttribute('data-tab');
+        
+        // Remove active class from all buttons and contents
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+        
+        // Add active class to clicked button and corresponding content
+        button.classList.add('active');
+        document.getElementById(`${tabName}-tab`).classList.add('active');
+    });
+});
