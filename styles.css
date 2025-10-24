@@ -82,24 +82,24 @@ header h1 {
 }
 
 .simulation-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 25px;
+    align-items: start;
 }
 
 .canvas-area {
     position: relative;
     display: flex;
-    gap: 15px;
+    gap: 10px;
     align-items: flex-start;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 #atwoodCanvas {
     display: block;
-    width: 700px;
-    height: 600px;
+    width: 600px;
+    height: 550px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     background: linear-gradient(to bottom, #f0f8ff 0%, #ffffff 100%);
@@ -107,7 +107,9 @@ header h1 {
 
 .controls {
     width: 100%;
-    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .info-panel {
@@ -118,20 +120,16 @@ header h1 {
     border: 1px solid var(--border-color);
 }
 
-.controls {
-    margin-top: 20px;
-}
-
 .controls-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 20px;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 15px;
 }
 
 .control-group {
     margin-bottom: 0;
-    padding: 15px;
+    padding: 12px;
     background: var(--light-bg);
     border-radius: 6px;
     border: 1px solid var(--border-color);
@@ -228,10 +226,9 @@ header h1 {
 
 .info-display {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-top: 20px;
-    padding: 20px;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 12px;
     background: var(--light-bg);
     border-radius: 6px;
     border: 1px solid var(--border-color);
@@ -591,8 +588,13 @@ input:invalid + .error-message {
 
 /* Responsive Design */
 @media (max-width: 1200px) {
+    .simulation-container {
+        grid-template-columns: 1fr;
+    }
+    
     .controls {
-        max-width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
     }
 }
 
@@ -616,11 +618,11 @@ input:invalid + .error-message {
 
 @media (max-width: 768px) {
     header h1 {
-        font-size: 2em;
+        font-size: 1.8em;
     }
     
     .subtitle {
-        font-size: 1em;
+        font-size: 0.95em;
     }
     
     #atwoodCanvas {
@@ -643,5 +645,9 @@ input:invalid + .error-message {
     .tab-button {
         font-size: 0.9em;
         padding: 12px 15px;
+    }
+    
+    .simulation-panel {
+        padding: 15px;
     }
 }

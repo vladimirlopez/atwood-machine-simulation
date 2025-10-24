@@ -60,10 +60,10 @@ class AtwoodMachine {
         
         // Canvas dimensions
         this.centerX = this.canvasWidth / 2;
-        this.pulleyY = 100;
-        this.pulleyRadius = 35;
-        this.ropeLength = 220;
-        this.maxRopeLength = 200; // Maximum rope extension (blocks stop before touching pulley)
+        this.pulleyY = 90;
+        this.pulleyRadius = 32;
+        this.ropeLength = 200;
+        this.maxRopeLength = 180; // Maximum rope extension (blocks stop before touching pulley)
         
         // Initial positions
         this.mass1InitialY = this.pulleyY + this.ropeLength;
@@ -590,12 +590,17 @@ class AtwoodMachine {
         const labelX = 10;
         const labelY = this.canvasHeight - 30;
         
-        // Background box and border (draw these first)
+        // Background box
         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
         this.ctx.fillRect(labelX, labelY - 15, 280, 30);
+        
+        // Box border (separate from background to ensure clean rendering)
+        this.ctx.beginPath();
         this.ctx.strokeStyle = '#495057';
         this.ctx.lineWidth = 1;
-        this.ctx.strokeRect(labelX, labelY - 15, 280, 30);
+        this.ctx.rect(labelX, labelY - 15, 280, 30);
+        this.ctx.stroke();
+        this.ctx.closePath();
         
         // Text
         this.ctx.fillStyle = '#495057';
@@ -603,24 +608,25 @@ class AtwoodMachine {
         this.ctx.textAlign = 'left';
         this.ctx.fillText('Sign Convention: Clockwise ⟳ = Positive (+)', labelX + 8, labelY + 3);
         
-        // Small rotating arrow indicator (reset stroke style before drawing)
+        // Small rotating arrow indicator
         const arrowX = labelX + 250;
         const arrowY = labelY;
         const arrowR = 10;
         
-        // Green clockwise arrow
+        // Green clockwise arrow (start fresh path)
+        this.ctx.beginPath();
         this.ctx.strokeStyle = '#28a745';
         this.ctx.lineWidth = 2;
-        this.ctx.beginPath();
         this.ctx.arc(arrowX, arrowY, arrowR, -Math.PI * 0.3, Math.PI * 0.3, false);
         this.ctx.stroke();
+        this.ctx.closePath();
         
         // Arrowhead
         const headAngle = Math.PI * 0.3;
         const headX = arrowX + arrowR * Math.cos(headAngle);
         const headY = arrowY + arrowR * Math.sin(headAngle);
-        this.ctx.fillStyle = '#28a745';
         this.ctx.beginPath();
+        this.ctx.fillStyle = '#28a745';
         this.ctx.moveTo(headX, headY);
         this.ctx.lineTo(headX + 5 * Math.cos(headAngle + Math.PI / 2 + 0.3), 
                        headY + 5 * Math.sin(headAngle + Math.PI / 2 + 0.3));
