@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atwood Machine Simulation - The Thinking Experiment</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Atwood Machine Simulation</h1>
+            <p class="subtitle">Understanding acceleration and motion direction</p>
+        </header>
+
+        <div class="main-content">
+            <div class="simulation-panel">
+                <canvas id="atwoodCanvas" width="600" height="500"></canvas>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="mass1">Mass 1 (kg):</label>
+                        <input type="number" id="mass1" min="0.1" max="20" step="0.1" value="2">
+                        <span class="value-display" id="mass1Display">2.0 kg</span>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="mass2">Mass 2 (kg):</label>
+                        <input type="number" id="mass2" min="0.1" max="20" step="0.1" value="3">
+                        <span class="value-display" id="mass2Display">3.0 kg</span>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="initialVelocity">Initial Velocity (m/s):</label>
+                        <input type="number" id="initialVelocity" min="-10" max="10" step="0.1" value="0">
+                        <span class="value-display" id="velocityDisplay">0.0 m/s</span>
+                        <small>Positive: Mass 1 moves down | Negative: Mass 1 moves up</small>
+                    </div>
+
+                    <div class="button-group">
+                        <button id="startBtn" class="btn btn-primary">Start</button>
+                        <button id="pauseBtn" class="btn btn-secondary">Pause</button>
+                        <button id="resetBtn" class="btn btn-secondary">Reset</button>
+                    </div>
+
+                    <div class="info-display">
+                        <div class="info-item">
+                            <span class="label">Acceleration:</span>
+                            <span class="value" id="accelerationValue">0.00 m/s²</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Current Velocity:</span>
+                            <span class="value" id="currentVelocity">0.00 m/s</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Tension:</span>
+                            <span class="value" id="tensionValue">0.00 N</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Time:</span>
+                            <span class="value" id="timeValue">0.00 s</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <section class="info-section">
+                    <h2>What is an Atwood Machine?</h2>
+                    <p>
+                        An Atwood machine consists of two masses connected by an inextensible string 
+                        that passes over a frictionless pulley. It's a classic physics demonstration 
+                        used to study the laws of motion and acceleration.
+                    </p>
+                </section>
+
+                <section class="info-section">
+                    <h2>The Physics</h2>
+                    <p>
+                        For a frictionless pulley, the acceleration of the system is given by:
+                    </p>
+                    <div class="equation">
+                        a = g × (m₂ - m₁) / (m₁ + m₂)
+                    </div>
+                    <p>
+                        Where <strong>g</strong> is gravitational acceleration (9.8 m/s²), 
+                        <strong>m₁</strong> is the first mass, and <strong>m₂</strong> is the second mass.
+                    </p>
+                    <p>
+                        The tension in the string is:
+                    </p>
+                    <div class="equation">
+                        T = 2m₁m₂g / (m₁ + m₂)
+                    </div>
+                </section>
+
+                <section class="info-section">
+                    <h2>Key Insights</h2>
+                    <ul>
+                        <li>
+                            <strong>Direction of Acceleration vs. Motion:</strong> The acceleration tells us 
+                            how velocity is changing, not the direction of motion. An object can move upward 
+                            while accelerating downward (decelerating)!
+                        </li>
+                        <li>
+                            <strong>Equal Masses:</strong> When m₁ = m₂, the acceleration is zero. The system 
+                            moves with constant velocity (including zero velocity if starting from rest).
+                        </li>
+                        <li>
+                            <strong>Initial Velocity:</strong> Try setting different initial velocities to see 
+                            how the system behaves. Even if the calculated acceleration points one way, the 
+                            masses might initially move in the opposite direction!
+                        </li>
+                        <li>
+                            <strong>Frictionless Assumption:</strong> Real pulleys have friction and mass, 
+                            which affect the motion. This simulation uses the idealized case.
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="info-section">
+                    <h2>Try This!</h2>
+                    <ol>
+                        <li>Set m₁ = 2 kg and m₂ = 3 kg with zero initial velocity. Observe m₂ accelerating downward.</li>
+                        <li>Now set initial velocity to -5 m/s. Notice m₁ starts moving down even though acceleration points the other way!</li>
+                        <li>Set both masses equal (e.g., 2 kg each) with any initial velocity. The system maintains constant velocity.</li>
+                        <li>Experiment with extreme mass differences to see rapid acceleration.</li>
+                    </ol>
+                </section>
+
+                <section class="info-section footnote">
+                    <p>
+                        <em>This simulation uses g = 9.8 m/s² and assumes an ideal frictionless pulley 
+                        with negligible mass.</em>
+                    </p>
+                </section>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2025 The Thinking Experiment | Interactive Physics Simulations</p>
+        </footer>
+    </div>
+
+    <script src="simulation.js"></script>
+</body>
+</html>
