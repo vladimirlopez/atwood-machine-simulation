@@ -62,6 +62,12 @@ class AtwoodMachine {
         
         this.calculate();
         this.draw();
+        
+        // Initialize force diagrams visibility
+        const forceDiagrams = document.getElementById('forceDiagrams');
+        if (forceDiagrams && this.showForceArrows) {
+            forceDiagrams.classList.remove('hidden');
+        }
     }
     
     calculate() {
@@ -514,11 +520,11 @@ class AtwoodMachine {
         
         // Calculate forces
         const gravity = mass * this.g;
-        const arrowScale = 4; // pixels per Newton
-        const gravityLength = Math.min(gravity * arrowScale, 60);
-        const tensionLength = Math.min(this.tension * arrowScale, 60);
+        const arrowScale = 3; // pixels per Newton
+        const gravityLength = Math.min(gravity * arrowScale, 50);
+        const tensionLength = Math.min(this.tension * arrowScale, 50);
         
-        // Draw mass box
+        // Draw mass box (representing center of mass)
         ctx.fillStyle = label === 'm₁' ? '#2fa4e7' : '#e74c3c';
         ctx.fillRect(centerX - 15, centerY - 15, 30, 30);
         ctx.strokeStyle = '#2c3e50';
@@ -532,55 +538,59 @@ class AtwoodMachine {
         ctx.textBaseline = 'middle';
         ctx.fillText(label, centerX, centerY);
         
-        // Draw gravity arrow (downward - red)
+        // Draw gravity arrow (downward from center - red)
         ctx.strokeStyle = '#e74c3c';
         ctx.fillStyle = '#e74c3c';
         ctx.lineWidth = 3;
         
-        // Arrow shaft
+        // Arrow shaft - starts FROM center of mass
         ctx.beginPath();
-        ctx.moveTo(centerX + 20, centerY);
-        ctx.lineTo(centerX + 20, centerY + gravityLength);
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(centerX, centerY + gravityLength);
         ctx.stroke();
         
         // Arrow head
         ctx.beginPath();
-        ctx.moveTo(centerX + 20, centerY + gravityLength);
-        ctx.lineTo(centerX + 15, centerY + gravityLength - 8);
-        ctx.lineTo(centerX + 25, centerY + gravityLength - 8);
+        ctx.moveTo(centerX, centerY + gravityLength);
+        ctx.lineTo(centerX - 6, centerY + gravityLength - 10);
+        ctx.lineTo(centerX + 6, centerY + gravityLength - 10);
         ctx.closePath();
         ctx.fill();
         
         // Label for gravity
         ctx.fillStyle = '#2c3e50';
+        ctx.font = 'bold 11px Arial';
+        ctx.textAlign = 'left';
+        ctx.fillText(`${label}g`, centerX + 10, centerY + gravityLength / 2 - 5);
         ctx.font = '10px Arial';
-        ctx.fillText(`${label}g`, centerX + 35, centerY + gravityLength / 2);
-        ctx.fillText(`${gravity.toFixed(1)}N`, centerX + 35, centerY + gravityLength / 2 + 12);
+        ctx.fillText(`${gravity.toFixed(1)}N`, centerX + 10, centerY + gravityLength / 2 + 8);
         
-        // Draw tension arrow (upward - blue)
+        // Draw tension arrow (upward from center - blue)
         ctx.strokeStyle = '#3498db';
         ctx.fillStyle = '#3498db';
         ctx.lineWidth = 3;
         
-        // Arrow shaft
+        // Arrow shaft - starts FROM center of mass
         ctx.beginPath();
-        ctx.moveTo(centerX - 20, centerY);
-        ctx.lineTo(centerX - 20, centerY - tensionLength);
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(centerX, centerY - tensionLength);
         ctx.stroke();
         
         // Arrow head
         ctx.beginPath();
-        ctx.moveTo(centerX - 20, centerY - tensionLength);
-        ctx.lineTo(centerX - 25, centerY - tensionLength + 8);
-        ctx.lineTo(centerX - 15, centerY - tensionLength + 8);
+        ctx.moveTo(centerX, centerY - tensionLength);
+        ctx.lineTo(centerX - 6, centerY - tensionLength + 10);
+        ctx.lineTo(centerX + 6, centerY - tensionLength + 10);
         ctx.closePath();
         ctx.fill();
         
         // Label for tension
         ctx.fillStyle = '#2c3e50';
+        ctx.font = 'bold 11px Arial';
+        ctx.textAlign = 'left';
+        ctx.fillText('T', centerX + 10, centerY - tensionLength / 2 - 5);
         ctx.font = '10px Arial';
-        ctx.fillText('T', centerX - 35, centerY - tensionLength / 2);
-        ctx.fillText(`${this.tension.toFixed(1)}N`, centerX - 35, centerY - tensionLength / 2 + 12);
+        ctx.fillText(`${this.tension.toFixed(1)}N`, centerX + 10, centerY - tensionLength / 2 + 8);
     }
     
     drawForceArrows(mass1X, mass1Y, mass2X, mass2Y) {
