@@ -666,18 +666,18 @@ class AtwoodMachine {
     }
     
     drawGraphs() {
-        this.drawGraph('velocityGraph', this.graphData.time, this.graphData.velocity, '#28a745', 'Velocity (m/s)', -6, 6);
-        this.drawGraph('accelerationGraph', this.graphData.time, this.graphData.acceleration, '#ffc107', 'Acceleration (m/s²)', -10, 10);
+        this.drawGraph('velocityGraph', this.graphData.time, this.graphData.velocity, '#28a745', 'Velocity (m/s)');
+        this.drawGraph('accelerationGraph', this.graphData.time, this.graphData.acceleration, '#ffc107', 'Acceleration (m/s²)');
     }
     
-    drawGraph(canvasId, timeData, yData, color, yLabel, yMin, yMax) {
+    drawGraph(canvasId, timeData, yData, color, yLabel) {
         const canvas = document.getElementById(canvasId);
         if (!canvas) return;
         
         const ctx = canvas.getContext('2d');
         const width = canvas.width;
         const height = canvas.height;
-        const padding = 40;
+        const padding = 50;
         
         // Clear canvas
         ctx.clearRect(0, 0, width, height);
@@ -686,36 +686,70 @@ class AtwoodMachine {
         
         if (timeData.length < 2) return;
         
-        // Calculate scales - use fixed time window
+        // Calculate scales - use actual data range for better visualization
         const currentTime = timeData[timeData.length - 1];
         const timeWindow = 10; // Show last 10 seconds
         const timeMin = Math.max(0, currentTime - timeWindow);
         const timeMax = Math.max(timeWindow, currentTime);
         const timeRange = timeMax - timeMin;
+        
+        // Calculate y range from actual data in window
+        let yMin = Infinity;
+        let yMax = -Infinity;
+        for (let i = 0; i < timeData.length; i++) {
+            if (timeData[i] >= timeMin) {
+                yMin = Math.min(yMin, yData[i]);
+                yMax = Math.max(yMax, yData[i]);
+            }
+        }
+        
+        // Add padding to y range
+        const yPadding = Math.max(0.5, (yMax - yMin) * 0.1);
+        yMin -= yPadding;
+        yMax += yPadding;
+        
+        // Ensure zero is visible if data crosses zero
+        if (yMin > 0 && yMax > 0) yMin = Math.min(yMin, 0);
+        if (yMin < 0 && yMax < 0) yMax = Math.max(yMax, 0);
+        
         const yRange = yMax - yMin;
         
         // Draw axes
         ctx.strokeStyle = '#495057';
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(padding, padding);
         ctx.lineTo(padding, height - padding);
         ctx.lineTo(width - padding, height - padding);
         ctx.stroke();
         
-        // Draw zero line
-        const zeroY = height - padding - ((0 - yMin) / yRange) * (height - 2 * padding);
-        ctx.strokeStyle = '#dee2e6';
-        ctx.setLineDash([5, 5]);
-        ctx.beginPath();
-        ctx.moveTo(padding, zeroY);
-        ctx.lineTo(width - padding, zeroY);
-        ctx.stroke();
-        ctx.setLineDash([]);
+        // Draw zero line if in range
+        if (yMin <= 0 && yMax >= 0) {
+            const zeroY = height - padding - ((0 - yMin) / yRange) * (height - 2 * padding);
+            ctx.strokeStyle = '#dee2e6';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(padding, zeroY);
+            ctx.lineTo(width - padding, zeroY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
         
-        // Draw data
+        // Draw grid lines
+        ctx.strokeStyle = '#f0f0f0';
+        ctx.lineWidth = 1;
+        for (let i = 1; i < 5; i++) {
+            const y = padding + (i * (height - 2 * padding) / 5);
+            ctx.beginPath();
+            ctx.moveTo(padding, y);
+            ctx.lineTo(width - padding, y);
+            ctx.stroke();
+        }
+        
+        // Draw data line
         ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
         ctx.beginPath();
         
         let firstPoint = true;
@@ -737,21 +771,32 @@ class AtwoodMachine {
         
         // Draw labels
         ctx.fillStyle = '#495057';
-        ctx.font = '11px Arial';
+        ctx.font = 'bold 12px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText('Time (s)', width / 2, height - 5);
+        ctx.fillText('Time (s)', width / 2, height - 15);
         
         ctx.save();
-        ctx.translate(10, height / 2);
+        ctx.translate(15, height / 2);
         ctx.rotate(-Math.PI / 2);
         ctx.fillText(yLabel, 0, 0);
         ctx.restore();
         
         // Draw y-axis values
+        ctx.font = '11px Arial';
         ctx.textAlign = 'right';
-        ctx.fillText(yMax.toFixed(1), padding - 5, padding + 5);
-        ctx.fillText('0', padding - 5, zeroY + 5);
-        ctx.fillText(yMin.toFixed(1), padding - 5, height - padding + 5);
+        ctx.fillText(yMax.toFixed(2), padding - 8, padding + 5);
+        
+        if (yMin <= 0 && yMax >= 0) {
+            const zeroY = height - padding - ((0 - yMin) / yRange) * (height - 2 * padding);
+            ctx.fillText('0', padding - 8, zeroY + 5);
+        }
+        
+        ctx.fillText(yMin.toFixed(2), padding - 8, height - padding + 5);
+        
+        // Draw x-axis time values
+        ctx.textAlign = 'center';
+        ctx.fillText(timeMin.toFixed(1), padding, height - padding + 20);
+        ctx.fillText(timeMax.toFixed(1), width - padding, height - padding + 20);
     }
 }
 
