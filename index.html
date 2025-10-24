@@ -15,50 +15,54 @@
 
         <div class="main-content">
             <div class="simulation-panel">
-                <canvas id="atwoodCanvas" width="600" height="500"></canvas>
-                
-                <div class="controls">
-                    <div class="control-group">
-                        <label for="mass1">Mass 1 (kg):</label>
-                        <input type="number" id="mass1" min="0.1" max="20" step="0.1" value="2">
-                        <span class="value-display" id="mass1Display">2.0 kg</span>
-                    </div>
+                <div class="simulation-container">
+                    <canvas id="atwoodCanvas" width="700" height="600"></canvas>
+                    
+                    <div class="controls">
+                        <div class="controls-grid">
+                            <div class="control-group">
+                                <label for="mass1">Mass 1 (m₁) - Left</label>
+                                <input type="number" id="mass1" min="0.1" max="20" step="0.1" value="2">
+                                <span class="value-display" id="mass1Display">2.0 kg</span>
+                            </div>
 
-                    <div class="control-group">
-                        <label for="mass2">Mass 2 (kg):</label>
-                        <input type="number" id="mass2" min="0.1" max="20" step="0.1" value="3">
-                        <span class="value-display" id="mass2Display">3.0 kg</span>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="initialVelocity">Initial Velocity (m/s):</label>
-                        <input type="number" id="initialVelocity" min="-10" max="10" step="0.1" value="0">
-                        <span class="value-display" id="velocityDisplay">0.0 m/s</span>
-                        <small>Positive: Mass 1 moves down | Negative: Mass 1 moves up</small>
-                    </div>
-
-                    <div class="button-group">
-                        <button id="startBtn" class="btn btn-primary">Start</button>
-                        <button id="pauseBtn" class="btn btn-secondary">Pause</button>
-                        <button id="resetBtn" class="btn btn-secondary">Reset</button>
-                    </div>
-
-                    <div class="info-display">
-                        <div class="info-item">
-                            <span class="label">Acceleration:</span>
-                            <span class="value" id="accelerationValue">0.00 m/s²</span>
+                            <div class="control-group">
+                                <label for="mass2">Mass 2 (m₂) - Right</label>
+                                <input type="number" id="mass2" min="0.1" max="20" step="0.1" value="3">
+                                <span class="value-display" id="mass2Display">3.0 kg</span>
+                            </div>
                         </div>
-                        <div class="info-item">
-                            <span class="label">Current Velocity:</span>
-                            <span class="value" id="currentVelocity">0.00 m/s</span>
+
+                        <div class="control-group">
+                            <label for="initialVelocity">Initial Velocity (v₀)</label>
+                            <input type="range" id="initialVelocity" min="-10" max="10" step="0.5" value="0">
+                            <span class="value-display" id="velocityDisplay">0.0 m/s</span>
+                            <small>Positive: m₁ moves down | Negative: m₁ moves up</small>
                         </div>
-                        <div class="info-item">
-                            <span class="label">Tension:</span>
-                            <span class="value" id="tensionValue">0.00 N</span>
+
+                        <div class="button-group">
+                            <button id="startBtn" class="btn btn-primary">Start</button>
+                            <button id="pauseBtn" class="btn btn-secondary">Pause</button>
+                            <button id="resetBtn" class="btn btn-secondary">Reset</button>
                         </div>
-                        <div class="info-item">
-                            <span class="label">Time:</span>
-                            <span class="value" id="timeValue">0.00 s</span>
+
+                        <div class="info-display">
+                            <div class="info-item">
+                                <span class="label">Acceleration (a):</span>
+                                <span class="value" id="accelerationValue">0.00 m/s²</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Velocity (v):</span>
+                                <span class="value" id="currentVelocity">0.00 m/s</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Tension (F_T):</span>
+                                <span class="value" id="tensionValue">0.00 N</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Time (t):</span>
+                                <span class="value" id="timeValue">0.00 s</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -75,23 +79,67 @@
                 </section>
 
                 <section class="info-section">
-                    <h2>The Physics</h2>
+                    <h2>The Physics: System Approach</h2>
                     <p>
-                        For a frictionless pulley, the acceleration of the system is given by:
+                        We can analyze the Atwood machine using the <strong>system method</strong>, 
+                        treating both masses together as a single system. This elegant approach 
+                        avoids dealing with tension forces internally.
+                    </p>
+                    
+                    <h3>Step 1: Define the System</h3>
+                    <p>
+                        Consider both masses (m₁ and m₂) as one system. The only <em>external</em> 
+                        forces acting on this system are the gravitational forces on each mass.
+                    </p>
+                    
+                    <h3>Step 2: Find the Net Force (F_NET)</h3>
+                    <p>
+                        If m₂ > m₁, the net external force pulling the system is:
                     </p>
                     <div class="equation">
-                        a = g × (m₂ - m₁) / (m₁ + m₂)
+                        F_NET = m₂g - m₁g = g(m₂ - m₁)
                     </div>
                     <p>
-                        Where <strong>g</strong> is gravitational acceleration (9.8 m/s²), 
-                        <strong>m₁</strong> is the first mass, and <strong>m₂</strong> is the second mass.
+                        The tension (F_T) is an <strong>internal force</strong> that cancels out when 
+                        considering the whole system—it pulls equally on both masses in opposite directions.
                     </p>
+                    
+                    <h3>Step 3: Apply Newton's Second Law</h3>
                     <p>
-                        The tension in the string is:
+                        The total mass of the system is (m₁ + m₂), so:
                     </p>
                     <div class="equation">
-                        T = 2m₁m₂g / (m₁ + m₂)
+                        F_NET = (m₁ + m₂)a
                     </div>
+                    <p>
+                        Combining our equations:
+                    </p>
+                    <div class="equation">
+                        g(m₂ - m₁) = (m₁ + m₂)a
+                    </div>
+                    <p>
+                        Solving for acceleration:
+                    </p>
+                    <div class="equation">
+                        a = g(m₂ - m₁)/(m₁ + m₂)
+                    </div>
+                    
+                    <h3>Finding Tension (F_T)</h3>
+                    <p>
+                        To find the tension, we isolate one mass. For m₁:
+                    </p>
+                    <div class="equation">
+                        F_T - m₁g = m₁a
+                    </div>
+                    <p>
+                        Substituting our expression for <em>a</em> and simplifying:
+                    </p>
+                    <div class="equation">
+                        F_T = 2m₁m₂g/(m₁ + m₂)
+                    </div>
+                    <p>
+                        <small><em>Where g = 9.8 m/s²</em></small>
+                    </p>
                 </section>
 
                 <section class="info-section">

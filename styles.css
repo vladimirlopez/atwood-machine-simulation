@@ -2,14 +2,15 @@
 
 :root {
     --primary-color: #2c3e50;
-    --secondary-color: #3498db;
+    --secondary-color: #2fa4e7;
     --accent-color: #e74c3c;
-    --light-bg: #ecf0f1;
+    --light-bg: #f8f9fa;
     --dark-text: #2c3e50;
-    --light-text: #7f8c8d;
-    --border-color: #bdc3c7;
-    --success-color: #27ae60;
-    --warning-color: #f39c12;
+    --light-text: #6c757d;
+    --border-color: #dee2e6;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --background-color: #ffffff;
 }
 
 * {
@@ -19,10 +20,10 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--light-bg);
     color: var(--dark-text);
-    line-height: 1.6;
+    line-height: 1.7;
     min-height: 100vh;
 }
 
@@ -34,54 +35,85 @@ body {
 
 header {
     text-align: center;
-    color: white;
+    background-color: var(--background-color);
     margin-bottom: 30px;
-    padding: 30px 0;
+    padding: 40px 20px;
+    border-bottom: 3px solid var(--secondary-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 header h1 {
-    font-size: 2.8em;
+    font-size: 2.5em;
     margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    color: var(--primary-color);
+    font-weight: 700;
 }
 
 .subtitle {
-    font-size: 1.2em;
-    opacity: 0.9;
+    font-size: 1.1em;
+    color: var(--light-text);
 }
 
 .main-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 30px;
     margin-bottom: 30px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.simulation-panel,
-.info-panel {
-    background: white;
-    border-radius: 12px;
+.simulation-panel {
+    background: var(--background-color);
+    border-radius: 8px;
     padding: 30px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
+}
+
+.simulation-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    align-items: start;
 }
 
 #atwoodCanvas {
     display: block;
-    margin: 0 auto 20px;
-    border: 2px solid var(--border-color);
+    width: 100%;
+    max-width: 700px;
+    height: 600px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: linear-gradient(to bottom, #f0f8ff 0%, #ffffff 100%);
+}
+
+.info-panel {
+    background: var(--background-color);
     border-radius: 8px;
-    background: linear-gradient(to bottom, #e8f4f8 0%, #ffffff 100%);
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
 }
 
 .controls {
     margin-top: 20px;
 }
 
-.control-group {
+.controls-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
     margin-bottom: 20px;
+}
+
+.control-group {
+    margin-bottom: 0;
     padding: 15px;
     background: var(--light-bg);
-    border-radius: 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
 }
 
 .control-group label {
@@ -89,18 +121,25 @@ header h1 {
     font-weight: 600;
     color: var(--primary-color);
     margin-bottom: 8px;
+    font-size: 0.95em;
 }
 
 .control-group input[type="number"] {
-    width: 120px;
+    width: 100%;
     padding: 8px 12px;
-    border: 2px solid var(--border-color);
-    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
     font-size: 1em;
-    margin-right: 10px;
+    margin-bottom: 5px;
 }
 
-.control-group input[type="number"]:focus {
+.control-group input[type="range"] {
+    width: 100%;
+    margin: 8px 0;
+}
+
+.control-group input[type="number"]:focus,
+.control-group input[type="range"]:focus {
     outline: none;
     border-color: var(--secondary-color);
 }
@@ -108,7 +147,10 @@ header h1 {
 .value-display {
     font-weight: 600;
     color: var(--secondary-color);
-    margin-left: 10px;
+    font-size: 1.1em;
+    display: block;
+    text-align: center;
+    margin-top: 5px;
 }
 
 .control-group small {
@@ -127,11 +169,11 @@ header h1 {
 .btn {
     padding: 12px 24px;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     font-size: 1em;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     flex: 1;
 }
 
@@ -141,9 +183,9 @@ header h1 {
 }
 
 .btn-primary:hover {
-    background: #229954;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+    background: #218838;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
 }
 
 .btn-secondary {
@@ -152,9 +194,9 @@ header h1 {
 }
 
 .btn-secondary:hover {
-    background: #2980b9;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+    background: #2589c7;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(47, 164, 231, 0.3);
 }
 
 .btn:disabled {
@@ -169,8 +211,9 @@ header h1 {
     gap: 15px;
     margin-top: 20px;
     padding: 20px;
-    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-    border-radius: 8px;
+    background: var(--light-bg);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
 }
 
 .info-item {
@@ -192,7 +235,7 @@ header h1 {
 
 .info-panel {
     overflow-y: auto;
-    max-height: 800px;
+    max-height: none;
 }
 
 .info-section {
@@ -201,10 +244,25 @@ header h1 {
 
 .info-section h2 {
     color: var(--primary-color);
-    font-size: 1.6em;
+    font-size: 1.5em;
     margin-bottom: 15px;
-    border-bottom: 3px solid var(--secondary-color);
+    border-bottom: 2px solid var(--secondary-color);
     padding-bottom: 8px;
+    font-weight: 700;
+}
+
+.info-section h3 {
+    font-size: 1.2em;
+    margin: 20px 0 10px 0;
+    color: var(--secondary-color);
+    font-weight: 600;
+}
+
+.control-group small {
+    display: block;
+    margin-top: 5px;
+    color: var(--light-text);
+    font-size: 0.85em;
 }
 
 .info-section p {
@@ -249,19 +307,21 @@ header h1 {
 
 footer {
     text-align: center;
-    color: white;
+    color: var(--light-text);
     padding: 20px;
     margin-top: 30px;
+    background-color: var(--background-color);
+    border-top: 1px solid var(--border-color);
 }
 
 /* Responsive Design */
 @media (max-width: 1200px) {
-    .main-content {
+    .simulation-container {
         grid-template-columns: 1fr;
     }
     
-    .info-panel {
-        max-height: none;
+    .controls-grid {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -276,7 +336,7 @@ footer {
     
     #atwoodCanvas {
         width: 100%;
-        height: auto;
+        height: 500px;
     }
     
     .info-display {
