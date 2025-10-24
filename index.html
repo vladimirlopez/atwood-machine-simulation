@@ -20,6 +20,9 @@
     <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
+    <!-- Screen reader announcements -->
+    <div id="sr-announcements" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+    
     <div class="container">
         <header>
             <h1>Atwood Machine Simulation</h1>
@@ -29,34 +32,65 @@
         <div class="main-content">
             <div class="simulation-panel">
                 <div class="simulation-container">
-                    <canvas id="atwoodCanvas" width="700" height="600"></canvas>
+                    <canvas id="atwoodCanvas" width="700" height="600" role="img" aria-label="Atwood machine simulation showing two masses connected by a rope over a pulley"></canvas>
+                    
+                    <!-- Graphs Panel (initially hidden) -->
+                    <div id="graphsPanel" class="graphs-panel hidden">
+                        <h3>Real-Time Graphs</h3>
+                        <div class="graphs-container">
+                            <div class="graph-box">
+                                <canvas id="velocityGraph" width="340" height="200"></canvas>
+                                <p class="graph-label">Velocity vs Time</p>
+                            </div>
+                            <div class="graph-box">
+                                <canvas id="accelerationGraph" width="340" height="200"></canvas>
+                                <p class="graph-label">Acceleration vs Time</p>
+                            </div>
+                        </div>
+                    </div>
                     
                     <div class="controls">
                         <div class="controls-grid">
                             <div class="control-group">
                                 <label for="mass1">Mass 1 (m₁) - Left</label>
-                                <input type="number" id="mass1" min="0.1" max="20" step="0.1" value="2">
+                                <input type="number" id="mass1" min="0.1" max="20" step="0.1" value="2" aria-describedby="mass1Help" aria-label="Mass 1 in kilograms">
                                 <span class="value-display" id="mass1Display">2.0 kg</span>
+                                <small id="mass1Help" class="sr-only">Enter a value between 0.1 and 20 kg</small>
                             </div>
 
                             <div class="control-group">
                                 <label for="mass2">Mass 2 (m₂) - Right</label>
-                                <input type="number" id="mass2" min="0.1" max="20" step="0.1" value="3">
+                                <input type="number" id="mass2" min="0.1" max="20" step="0.1" value="3" aria-describedby="mass2Help" aria-label="Mass 2 in kilograms">
                                 <span class="value-display" id="mass2Display">3.0 kg</span>
+                                <small id="mass2Help" class="sr-only">Enter a value between 0.1 and 20 kg</small>
                             </div>
                         </div>
 
                         <div class="control-group">
                             <label for="initialVelocity">Initial Velocity (v₀)</label>
-                            <input type="range" id="initialVelocity" min="-5" max="5" step="0.1" value="0">
+                            <input type="range" id="initialVelocity" min="-5" max="5" step="0.1" value="0" aria-describedby="velocityHelp">
                             <span class="value-display" id="velocityDisplay">0.0 m/s</span>
-                            <small>Positive: Clockwise (m₂↓, m₁↑) | Negative: Counterclockwise (m₁↓, m₂↑)</small>
+                            <small id="velocityHelp">Positive: Clockwise (m₂↓, m₁↑) | Negative: Counterclockwise (m₁↓, m₂↑)</small>
+                        </div>
+
+                        <div class="control-group visualization-toggles">
+                            <label class="toggle-header">Visualization Options</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="showForceArrows" checked>
+                                    <span>Show Force Arrows (Tension & Gravity)</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="showGraphs">
+                                    <span>Show Real-Time Graphs</span>
+                                </label>
+                            </div>
                         </div>
 
                         <div class="button-group">
-                            <button id="startBtn" class="btn btn-primary">Start</button>
-                            <button id="pauseBtn" class="btn btn-secondary">Pause</button>
-                            <button id="resetBtn" class="btn btn-secondary">Reset</button>
+                            <button id="startBtn" class="btn btn-primary" aria-label="Start simulation">Start</button>
+                            <button id="pauseBtn" class="btn btn-secondary" aria-label="Pause simulation">Pause</button>
+                            <button id="resetBtn" class="btn btn-secondary" aria-label="Reset simulation">Reset</button>
                         </div>
 
                         <div class="info-display">
@@ -181,6 +215,59 @@
                             which affect the motion. This simulation uses the idealized case.
                         </li>
                     </ul>
+                </section>
+
+                <section class="info-section exploration-section">
+                    <h2>🔍 Guided Exploration</h2>
+                    <p class="exploration-intro">Try these experiments to deepen your understanding:</p>
+                    
+                    <details class="exploration-item">
+                        <summary>What happens when the masses are equal?</summary>
+                        <div class="exploration-content">
+                            <p><strong>Try it:</strong> Set m₁ = m₂ (e.g., both 3 kg)</p>
+                            <p><strong>Prediction:</strong> Before you run it, what do you expect?</p>
+                            <p><strong>Explanation:</strong> When masses are equal, the net force is zero: 
+                            \(F_{NET} = g(m_2 - m_1) = 0\). This means acceleration is zero! The system will 
+                            maintain whatever velocity it started with (constant velocity motion). If it starts 
+                            from rest (v₀ = 0), it stays at rest.</p>
+                        </div>
+                    </details>
+
+                    <details class="exploration-item">
+                        <summary>How does initial velocity affect the motion?</summary>
+                        <div class="exploration-content">
+                            <p><strong>Try it:</strong> Set m₁ = 2 kg, m₂ = 3 kg, v₀ = -3 m/s (counterclockwise)</p>
+                            <p><strong>Observation:</strong> Notice that m₁ initially moves DOWN (counterclockwise), 
+                            but the acceleration is positive (clockwise). The system slows down, stops, then 
+                            reverses direction!</p>
+                            <p><strong>Key Insight:</strong> Acceleration determines how velocity <em>changes</em>, 
+                            not the direction of motion itself. An object can move one way while accelerating the 
+                            opposite way (it's slowing down).</p>
+                        </div>
+                    </details>
+
+                    <details class="exploration-item">
+                        <summary>What if one mass is much heavier?</summary>
+                        <div class="exploration-content">
+                            <p><strong>Try it:</strong> Set m₁ = 1 kg, m₂ = 10 kg</p>
+                            <p><strong>Prediction:</strong> Will the acceleration be close to g = 9.8 m/s²?</p>
+                            <p><strong>Explanation:</strong> As m₂ >> m₁, the acceleration approaches 
+                            \(a \approx g(m_2)/(m_2) = g\), but never quite reaches it because m₁ still provides 
+                            some resistance. The tension also increases significantly when masses are very different.</p>
+                        </div>
+                    </details>
+
+                    <details class="exploration-item">
+                        <summary>Can the system have constant motion?</summary>
+                        <div class="exploration-content">
+                            <p><strong>Try it:</strong> Set equal masses (m₁ = m₂) with any initial velocity v₀ ≠ 0</p>
+                            <p><strong>Result:</strong> The system moves with constant velocity! This demonstrates 
+                            Newton's First Law: an object in motion stays in motion with constant velocity when 
+                            the net force is zero.</p>
+                            <p><strong>Real-world connection:</strong> This is similar to an object sliding on a 
+                            frictionless surface—it keeps going at constant speed.</p>
+                        </div>
+                    </details>
                 </section>
 
                 <section class="info-section">

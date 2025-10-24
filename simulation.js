@@ -46,6 +46,18 @@ class AtwoodMachine {
         this.isRunning = false;
         this.animationId = null;
         
+        // Visualization options
+        this.showForceArrows = true;
+        this.showGraphs = false;
+        
+        // Graph data storage
+        this.graphData = {
+            time: [],
+            velocity: [],
+            acceleration: [],
+            maxPoints: 200  // Keep last 200 points
+        };
+        
         // Canvas dimensions
         this.centerX = this.canvasWidth / 2;
         this.pulleyY = 100;
@@ -73,6 +85,8 @@ class AtwoodMachine {
         this.position2 = 0;
         this.velocity = this.initialVelocity;
         this.time = 0;
+        this.pulleyAngle = 0;
+        this.clearGraphData();
         this.calculate();
         this.draw();
         this.updateDisplay();
@@ -115,6 +129,11 @@ class AtwoodMachine {
         
         this.draw();
         this.updateDisplay();
+        
+        // Update graphs if enabled
+        if (this.showGraphs) {
+            this.updateGraphData();
+        }
         
         this.animationId = requestAnimationFrame(() => this.animate());
     }
@@ -273,6 +292,11 @@ class AtwoodMachine {
         this.drawVelocityArrow(mass2X + 50, mass2Y, this.velocity, '#28a745', 'v');
         this.drawAccelerationArrow(mass2X + 90, mass2Y, this.acceleration, '#ffc107', 'a');
         
+        // Draw force arrows if enabled
+        if (this.showForceArrows) {
+            this.drawForceArrows(mass1X, mass1Y, mass2X, mass2Y);
+        }
+        
         // Draw labels
         this.drawLabels();
     }
@@ -392,6 +416,75 @@ class AtwoodMachine {
         this.ctx.fillText(mass.toFixed(1) + ' kg', x, y + 8);
     }
     
+    drawForceArrows(mass1X, mass1Y, mass2X, mass2Y) {
+        const arrowScale = 5; // pixels per Newton
+        const maxArrowLength = 80;
+        
+        // Calculate force magnitudes
+        const gravity1 = this.mass1 * this.g;
+        const gravity2 = this.mass2 * this.g;
+        
+        // Mass 1 forces
+        // Gravity (downward)
+        const gravity1Length = Math.min(gravity1 * arrowScale, maxArrowLength);
+        this.drawForce(mass1X + 20, mass1Y, 0, gravity1Length, '#e74c3c', `m₁g\n${gravity1.toFixed(1)}N`);
+        
+        // Tension (upward)
+        const tensionLength = Math.min(this.tension * arrowScale, maxArrowLength);
+        this.drawForce(mass1X + 40, mass1Y, 0, -tensionLength, '#3498db', `T\n${this.tension.toFixed(1)}N`);
+        
+        // Mass 2 forces
+        // Gravity (downward)
+        const gravity2Length = Math.min(gravity2 * arrowScale, maxArrowLength);
+        this.drawForce(mass2X - 20, mass2Y, 0, gravity2Length, '#e74c3c', `m₂g\n${gravity2.toFixed(1)}N`);
+        
+        // Tension (upward)
+        this.drawForce(mass2X - 40, mass2Y, 0, -tensionLength, '#3498db', `T\n${this.tension.toFixed(1)}N`);
+    }
+    
+    drawForce(x, y, dx, dy, color, label) {
+        if (Math.abs(dy) < 2) return;
+        
+        this.ctx.save();
+        this.ctx.strokeStyle = color;
+        this.ctx.fillStyle = color;
+        this.ctx.lineWidth = 2.5;
+        
+        // Draw arrow line
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, y);
+        this.ctx.lineTo(x + dx, y + dy);
+        this.ctx.stroke();
+        
+        // Draw arrowhead
+        const angle = Math.atan2(dy, dx);
+        const headLength = 8;
+        this.ctx.beginPath();
+        this.ctx.moveTo(x + dx, y + dy);
+        this.ctx.lineTo(
+            x + dx - headLength * Math.cos(angle - Math.PI / 6),
+            y + dy - headLength * Math.sin(angle - Math.PI / 6)
+        );
+        this.ctx.lineTo(
+            x + dx - headLength * Math.cos(angle + Math.PI / 6),
+            y + dy - headLength * Math.sin(angle + Math.PI / 6)
+        );
+        this.ctx.closePath();
+        this.ctx.fill();
+        
+        // Draw label
+        this.ctx.font = 'bold 10px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillStyle = color;
+        const lines = label.split('\n');
+        lines.forEach((line, i) => {
+            this.ctx.fillText(line, x + dx + (dx < 0 ? -15 : 15), y + dy / 2 + i * 12);
+        });
+        
+        this.ctx.restore();
+    }
+
     drawLabels() {
         // Save context state
         this.ctx.save();
@@ -478,6 +571,128 @@ class AtwoodMachine {
         this.draw();
         this.updateDisplay();
     }
+    
+    setShowForceArrows(show) {
+        this.showForceArrows = show;
+        this.draw();
+    }
+    
+    setShowGraphs(show) {
+        this.showGraphs = show;
+        const graphsPanel = document.getElementById('graphsPanel');
+        if (show) {
+            graphsPanel.classList.remove('hidden');
+            this.clearGraphData();
+            if (this.isRunning) {
+                this.drawGraphs();
+            }
+        } else {
+            graphsPanel.classList.add('hidden');
+        }
+    }
+    
+    updateGraphData() {
+        this.graphData.time.push(this.time);
+        this.graphData.velocity.push(this.velocity);
+        this.graphData.acceleration.push(this.acceleration);
+        
+        // Keep only last maxPoints
+        if (this.graphData.time.length > this.graphData.maxPoints) {
+            this.graphData.time.shift();
+            this.graphData.velocity.shift();
+            this.graphData.acceleration.shift();
+        }
+        
+        this.drawGraphs();
+    }
+    
+    clearGraphData() {
+        this.graphData.time = [];
+        this.graphData.velocity = [];
+        this.graphData.acceleration = [];
+    }
+    
+    drawGraphs() {
+        this.drawGraph('velocityGraph', this.graphData.time, this.graphData.velocity, '#28a745', 'Velocity (m/s)', -6, 6);
+        this.drawGraph('accelerationGraph', this.graphData.time, this.graphData.acceleration, '#ffc107', 'Acceleration (m/s²)', -10, 10);
+    }
+    
+    drawGraph(canvasId, timeData, yData, color, yLabel, yMin, yMax) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+        const padding = 40;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
+        
+        if (timeData.length < 2) return;
+        
+        // Calculate scales
+        const timeMin = Math.min(...timeData);
+        const timeMax = Math.max(...timeData);
+        const timeRange = timeMax - timeMin || 1;
+        const yRange = yMax - yMin;
+        
+        // Draw axes
+        ctx.strokeStyle = '#495057';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(padding, padding);
+        ctx.lineTo(padding, height - padding);
+        ctx.lineTo(width - padding, height - padding);
+        ctx.stroke();
+        
+        // Draw zero line
+        const zeroY = height - padding - ((0 - yMin) / yRange) * (height - 2 * padding);
+        ctx.strokeStyle = '#dee2e6';
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(padding, zeroY);
+        ctx.lineTo(width - padding, zeroY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        // Draw data
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        for (let i = 0; i < timeData.length; i++) {
+            const x = padding + ((timeData[i] - timeMin) / timeRange) * (width - 2 * padding);
+            const y = height - padding - ((yData[i] - yMin) / yRange) * (height - 2 * padding);
+            
+            if (i === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        ctx.stroke();
+        
+        // Draw labels
+        ctx.fillStyle = '#495057';
+        ctx.font = '11px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Time (s)', width / 2, height - 5);
+        
+        ctx.save();
+        ctx.translate(10, height / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText(yLabel, 0, 0);
+        ctx.restore();
+        
+        // Draw y-axis values
+        ctx.textAlign = 'right';
+        ctx.fillText(yMax.toFixed(1), padding - 5, padding + 5);
+        ctx.fillText('0', padding - 5, zeroY + 5);
+        ctx.fillText(yMin.toFixed(1), padding - 5, height - padding + 5);
+    }
 }
 
 // Initialize simulation
@@ -497,15 +712,36 @@ var mass1Display = document.getElementById('mass1Display');
 var mass2Display = document.getElementById('mass2Display');
 var velocityDisplay = document.getElementById('velocityDisplay');
 
+// Toggle elements
+var showForceArrowsToggle = document.getElementById('showForceArrows');
+var showGraphsToggle = document.getElementById('showGraphs');
+
+// Input validation
+function validateMassInput(input, display) {
+    let value = parseFloat(input.value);
+    if (isNaN(value) || value < 0.1) {
+        value = 0.1;
+        input.value = value;
+    } else if (value > 20) {
+        value = 20;
+        input.value = value;
+    }
+    return value;
+}
+
 // Event listeners
 mass1Input.addEventListener('input', (e) => {
-    simulation.setMass1(e.target.value);
-    mass1Display.textContent = parseFloat(e.target.value).toFixed(1) + ' kg';
+    const value = validateMassInput(e.target, mass1Display);
+    simulation.setMass1(value);
+    mass1Display.textContent = value.toFixed(1) + ' kg';
+    announceToScreenReader(`Mass 1 set to ${value.toFixed(1)} kilograms`);
 });
 
 mass2Input.addEventListener('input', (e) => {
-    simulation.setMass2(e.target.value);
-    mass2Display.textContent = parseFloat(e.target.value).toFixed(1) + ' kg';
+    const value = validateMassInput(e.target, mass2Display);
+    simulation.setMass2(value);
+    mass2Display.textContent = value.toFixed(1) + ' kg';
+    announceToScreenReader(`Mass 2 set to ${value.toFixed(1)} kilograms`);
 });
 
 velocityInput.addEventListener('input', (e) => {
@@ -517,12 +753,14 @@ startBtn.addEventListener('click', () => {
     simulation.start();
     startBtn.disabled = true;
     pauseBtn.disabled = false;
+    announceToScreenReader('Simulation started');
 });
 
 pauseBtn.addEventListener('click', () => {
     simulation.pause();
     startBtn.disabled = false;
     pauseBtn.disabled = true;
+    announceToScreenReader('Simulation paused');
 });
 
 resetBtn.addEventListener('click', () => {
@@ -530,7 +768,45 @@ resetBtn.addEventListener('click', () => {
     simulation.reset();
     startBtn.disabled = false;
     pauseBtn.disabled = true;
+    announceToScreenReader('Simulation reset');
 });
+
+// Visualization toggles
+showForceArrowsToggle.addEventListener('change', (e) => {
+    simulation.setShowForceArrows(e.target.checked);
+    announceToScreenReader(e.target.checked ? 'Force arrows shown' : 'Force arrows hidden');
+});
+
+showGraphsToggle.addEventListener('change', (e) => {
+    simulation.setShowGraphs(e.target.checked);
+    announceToScreenReader(e.target.checked ? 'Graphs shown' : 'Graphs hidden');
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // Space bar: Start/Pause
+    if (e.code === 'Space' && !e.target.matches('input')) {
+        e.preventDefault();
+        if (simulation.isRunning) {
+            pauseBtn.click();
+        } else {
+            startBtn.click();
+        }
+    }
+    // R key: Reset
+    else if (e.code === 'KeyR' && !e.target.matches('input')) {
+        e.preventDefault();
+        resetBtn.click();
+    }
+});
+
+// Screen reader announcements
+function announceToScreenReader(message) {
+    const announcement = document.getElementById('sr-announcements');
+    if (announcement) {
+        announcement.textContent = message;
+    }
+}
 
 // Initialize button states
 pauseBtn.disabled = true;
