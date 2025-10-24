@@ -19,12 +19,21 @@
     box-sizing: border-box;
 }
 
+/* Performance optimization: GPU acceleration for smooth animations */
+canvas {
+    will-change: transform;
+    transform: translateZ(0);
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     background-color: var(--light-bg);
     color: var(--dark-text);
     line-height: 1.7;
     min-height: 100vh;
+    /* Optimize font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .container {

@@ -5,8 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atwood Machine Simulation - The Thinking Experiment</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Defer MathJax loading for faster initial render -->
+    <script>
+        window.MathJax = {
+            startup: {
+                pageReady: () => {
+                    return MathJax.startup.defaultPageReady().then(() => {
+                        console.log('MathJax loaded');
+                    });
+                }
+            }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
     <div class="container">
@@ -192,10 +203,10 @@
         </div>
 
         <footer>
-            <p>© 2025 The Thinking Experiment | Interactive Physics Simulations</p>
+            <p>© 2025 Vladimir Lopez | The Thinking Experiment | Interactive Physics Simulations</p>
         </footer>
     </div>
 
-    <script src="simulation.js"></script>
+    <script defer src="simulation.js"></script>
 </body>
 </html>
