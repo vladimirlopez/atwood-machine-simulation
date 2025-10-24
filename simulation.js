@@ -48,15 +48,6 @@ class AtwoodMachine {
         
         // Visualization options
         this.showForceArrows = true;
-        this.showGraphs = false;
-        
-        // Graph data storage
-        this.graphData = {
-            time: [],
-            velocity: [],
-            acceleration: [],
-            maxPoints: 200  // Keep last 200 points
-        };
         
         // Canvas dimensions
         this.centerX = this.canvasWidth / 2;
@@ -86,7 +77,6 @@ class AtwoodMachine {
         this.velocity = this.initialVelocity;
         this.time = 0;
         this.pulleyAngle = 0;
-        this.clearGraphData();
         this.calculate();
         this.draw();
         this.updateDisplay();
@@ -129,11 +119,6 @@ class AtwoodMachine {
         
         this.draw();
         this.updateDisplay();
-        
-        // Update graphs if enabled
-        if (this.showGraphs) {
-            this.updateGraphData();
-        }
         
         this.animationId = requestAnimationFrame(() => this.animate());
     }
@@ -629,175 +614,6 @@ class AtwoodMachine {
         }
         this.draw();
     }
-    
-    setShowGraphs(show) {
-        this.showGraphs = show;
-        const graphsPanel = document.getElementById('graphsPanel');
-        if (show) {
-            graphsPanel.classList.remove('hidden');
-            this.clearGraphData();
-            if (this.isRunning) {
-                this.drawGraphs();
-            }
-        } else {
-            graphsPanel.classList.add('hidden');
-        }
-    }
-    
-    updateGraphData() {
-        this.graphData.time.push(this.time);
-        this.graphData.velocity.push(this.velocity);
-        this.graphData.acceleration.push(this.acceleration);
-        
-        // Keep only last maxPoints
-        if (this.graphData.time.length > this.graphData.maxPoints) {
-            this.graphData.time.shift();
-            this.graphData.velocity.shift();
-            this.graphData.acceleration.shift();
-        }
-        
-        this.drawGraphs();
-    }
-    
-    clearGraphData() {
-        this.graphData.time = [];
-        this.graphData.velocity = [];
-        this.graphData.acceleration = [];
-    }
-    
-    drawGraphs() {
-        this.drawGraph('velocityGraph', this.graphData.time, this.graphData.velocity, '#28a745', 'Velocity (m/s)');
-        this.drawGraph('accelerationGraph', this.graphData.time, this.graphData.acceleration, '#ffc107', 'Acceleration (m/s²)');
-    }
-    
-    drawGraph(canvasId, timeData, yData, color, yLabel) {
-        const canvas = document.getElementById(canvasId);
-        if (!canvas) return;
-        
-        const ctx = canvas.getContext('2d');
-        const width = canvas.width;
-        const height = canvas.height;
-        const padding = 50;
-        
-        // Clear canvas
-        ctx.clearRect(0, 0, width, height);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, width, height);
-        
-        if (timeData.length < 2) return;
-        
-        // Calculate scales - use actual data range for better visualization
-        const currentTime = timeData[timeData.length - 1];
-        const timeWindow = 10; // Show last 10 seconds
-        const timeMin = Math.max(0, currentTime - timeWindow);
-        const timeMax = Math.max(timeWindow, currentTime);
-        const timeRange = timeMax - timeMin;
-        
-        // Calculate y range from actual data in window
-        let yMin = Infinity;
-        let yMax = -Infinity;
-        for (let i = 0; i < timeData.length; i++) {
-            if (timeData[i] >= timeMin) {
-                yMin = Math.min(yMin, yData[i]);
-                yMax = Math.max(yMax, yData[i]);
-            }
-        }
-        
-        // Add padding to y range
-        const yPadding = Math.max(0.5, (yMax - yMin) * 0.1);
-        yMin -= yPadding;
-        yMax += yPadding;
-        
-        // Ensure zero is visible if data crosses zero
-        if (yMin > 0 && yMax > 0) yMin = Math.min(yMin, 0);
-        if (yMin < 0 && yMax < 0) yMax = Math.max(yMax, 0);
-        
-        const yRange = yMax - yMin;
-        
-        // Draw axes
-        ctx.strokeStyle = '#495057';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(padding, padding);
-        ctx.lineTo(padding, height - padding);
-        ctx.lineTo(width - padding, height - padding);
-        ctx.stroke();
-        
-        // Draw zero line if in range
-        if (yMin <= 0 && yMax >= 0) {
-            const zeroY = height - padding - ((0 - yMin) / yRange) * (height - 2 * padding);
-            ctx.strokeStyle = '#dee2e6';
-            ctx.lineWidth = 1;
-            ctx.setLineDash([5, 5]);
-            ctx.beginPath();
-            ctx.moveTo(padding, zeroY);
-            ctx.lineTo(width - padding, zeroY);
-            ctx.stroke();
-            ctx.setLineDash([]);
-        }
-        
-        // Draw grid lines
-        ctx.strokeStyle = '#f0f0f0';
-        ctx.lineWidth = 1;
-        for (let i = 1; i < 5; i++) {
-            const y = padding + (i * (height - 2 * padding) / 5);
-            ctx.beginPath();
-            ctx.moveTo(padding, y);
-            ctx.lineTo(width - padding, y);
-            ctx.stroke();
-        }
-        
-        // Draw data line
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        
-        let firstPoint = true;
-        for (let i = 0; i < timeData.length; i++) {
-            // Only draw points within the time window
-            if (timeData[i] < timeMin) continue;
-            
-            const x = padding + ((timeData[i] - timeMin) / timeRange) * (width - 2 * padding);
-            const y = height - padding - ((yData[i] - yMin) / yRange) * (height - 2 * padding);
-            
-            if (firstPoint) {
-                ctx.moveTo(x, y);
-                firstPoint = false;
-            } else {
-                ctx.lineTo(x, y);
-            }
-        }
-        ctx.stroke();
-        
-        // Draw labels
-        ctx.fillStyle = '#495057';
-        ctx.font = 'bold 12px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('Time (s)', width / 2, height - 15);
-        
-        ctx.save();
-        ctx.translate(15, height / 2);
-        ctx.rotate(-Math.PI / 2);
-        ctx.fillText(yLabel, 0, 0);
-        ctx.restore();
-        
-        // Draw y-axis values
-        ctx.font = '11px Arial';
-        ctx.textAlign = 'right';
-        ctx.fillText(yMax.toFixed(2), padding - 8, padding + 5);
-        
-        if (yMin <= 0 && yMax >= 0) {
-            const zeroY = height - padding - ((0 - yMin) / yRange) * (height - 2 * padding);
-            ctx.fillText('0', padding - 8, zeroY + 5);
-        }
-        
-        ctx.fillText(yMin.toFixed(2), padding - 8, height - padding + 5);
-        
-        // Draw x-axis time values
-        ctx.textAlign = 'center';
-        ctx.fillText(timeMin.toFixed(1), padding, height - padding + 20);
-        ctx.fillText(timeMax.toFixed(1), width - padding, height - padding + 20);
-    }
 }
 
 // Initialize simulation
@@ -819,7 +635,6 @@ var velocityDisplay = document.getElementById('velocityDisplay');
 
 // Toggle elements
 var showForceArrowsToggle = document.getElementById('showForceArrows');
-var showGraphsToggle = document.getElementById('showGraphs');
 
 // Input validation
 function validateMassInput(input, display) {
@@ -880,11 +695,6 @@ resetBtn.addEventListener('click', () => {
 showForceArrowsToggle.addEventListener('change', (e) => {
     simulation.setShowForceArrows(e.target.checked);
     announceToScreenReader(e.target.checked ? 'Force arrows shown' : 'Force arrows hidden');
-});
-
-showGraphsToggle.addEventListener('change', (e) => {
-    simulation.setShowGraphs(e.target.checked);
-    announceToScreenReader(e.target.checked ? 'Graphs shown' : 'Graphs hidden');
 });
 
 // Keyboard shortcuts
