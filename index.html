@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atwood Machine Simulation - The Thinking Experiment</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
     <div class="container">
@@ -87,62 +89,62 @@
                     </p>
                     <p>
                         <strong>Sign Convention:</strong> We use the convention that <em>clockwise rotation is positive</em>. 
-                        This means positive velocity/acceleration corresponds to m₂ moving down and m₁ moving up.
+                        This means positive velocity/acceleration corresponds to \(m_2\) moving down and \(m_1\) moving up.
                     </p>
                     
                     <h3>Step 1: Define the System</h3>
                     <p>
-                        Consider both masses (m₁ and m₂) as one system. The only <em>external</em> 
+                        Consider both masses (\(m_1\) and \(m_2\)) as one system. The only <em>external</em> 
                         forces acting on this system are the gravitational forces on each mass.
                     </p>
                     
-                    <h3>Step 2: Find the Net Force (F_NET)</h3>
+                    <h3>Step 2: Find the Net Force (\(F_{\text{NET}}\))</h3>
                     <p>
-                        If m₂ > m₁, the net external force pulling the system is:
+                        If \(m_2 > m_1\), the net external force pulling the system is:
                     </p>
                     <div class="equation">
-                        F_NET = m₂g - m₁g = g(m₂ - m₁)
+                        $$F_{\text{NET}} = m_2g - m_1g = g(m_2 - m_1)$$
                     </div>
                     <p>
-                        The tension (F_T) is an <strong>internal force</strong> that cancels out when 
+                        The tension (\(F_T\)) is an <strong>internal force</strong> that cancels out when 
                         considering the whole system—it pulls equally on both masses in opposite directions.
                     </p>
                     
                     <h3>Step 3: Apply Newton's Second Law</h3>
                     <p>
-                        The total mass of the system is (m₁ + m₂), so:
+                        The total mass of the system is \((m_1 + m_2)\), so:
                     </p>
                     <div class="equation">
-                        F_NET = (m₁ + m₂)a
+                        $$F_{\text{NET}} = (m_1 + m_2)a$$
                     </div>
                     <p>
                         Combining our equations:
                     </p>
                     <div class="equation">
-                        g(m₂ - m₁) = (m₁ + m₂)a
+                        $$g(m_2 - m_1) = (m_1 + m_2)a$$
                     </div>
                     <p>
                         Solving for acceleration:
                     </p>
                     <div class="equation">
-                        a = g(m₂ - m₁)/(m₁ + m₂)
+                        $$a = \frac{g(m_2 - m_1)}{m_1 + m_2}$$
                     </div>
                     
-                    <h3>Finding Tension (F_T)</h3>
+                    <h3>Finding Tension (\(F_T\))</h3>
                     <p>
-                        To find the tension, we isolate one mass. For m₁:
+                        To find the tension, we isolate one mass. For \(m_1\):
                     </p>
                     <div class="equation">
-                        F_T - m₁g = m₁a
+                        $$F_T - m_1g = m_1a$$
                     </div>
                     <p>
-                        Substituting our expression for <em>a</em> and simplifying:
+                        Substituting our expression for \(a\) and simplifying:
                     </p>
                     <div class="equation">
-                        F_T = 2m₁m₂g/(m₁ + m₂)
+                        $$F_T = \frac{2m_1m_2g}{m_1 + m_2}$$
                     </div>
                     <p>
-                        <small><em>Where g = 9.8 m/s²</em></small>
+                        <small><em>Where \(g = 9.8 \, \text{m/s}^2\)</em></small>
                     </p>
                 </section>
 

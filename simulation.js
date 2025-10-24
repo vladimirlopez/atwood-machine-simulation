@@ -137,34 +137,28 @@ class AtwoodMachine {
         this.ctx.strokeStyle = '#6c757d';
         this.ctx.lineWidth = 3;
         
-        // For vertical ropes tangent to a pulley:
-        // Left rope is tangent at the left side of pulley (90° from vertical)
-        // Right rope is tangent at the right side of pulley (90° from vertical)
-        
-        // Left rope tangent point (left side of pulley)
+        // Tangent points on the pulley (left and right sides)
         const leftTangentX = this.centerX - this.pulleyRadius;
         const leftTangentY = this.pulleyY;
         
-        // Right rope tangent point (right side of pulley)
         const rightTangentX = this.centerX + this.pulleyRadius;
         const rightTangentY = this.pulleyY;
         
-        // Draw left rope (straight vertical line from mass to tangent point)
+        // Draw left rope (vertical from mass, then horizontal to tangent)
         this.ctx.beginPath();
         this.ctx.moveTo(mass1X, mass1Y - 25);
         this.ctx.lineTo(mass1X, leftTangentY);
         this.ctx.lineTo(leftTangentX, leftTangentY);
         this.ctx.stroke();
         
-        // Draw right rope (straight vertical line from mass to tangent point)
+        // Draw right rope (vertical from mass, then horizontal to tangent)
         this.ctx.beginPath();
         this.ctx.moveTo(mass2X, mass2Y - 25);
         this.ctx.lineTo(mass2X, rightTangentY);
         this.ctx.lineTo(rightTangentX, rightTangentY);
         this.ctx.stroke();
         
-        // Draw rope arc over pulley (from left tangent to right tangent, going over the top)
-        // In standard orientation: left tangent at 180°, over the top, to right tangent at 0°
+        // Draw rope arc over pulley (semicircle over the top)
         this.ctx.beginPath();
         this.ctx.arc(this.centerX, this.pulleyY, this.pulleyRadius, Math.PI, 0, false);
         this.ctx.stroke();
