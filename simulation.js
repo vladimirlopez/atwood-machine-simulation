@@ -346,13 +346,13 @@ class AtwoodMachine {
         const tensionLength = Math.min(tension * arrowScale, maxArrowLength);
         
         // Draw gravity arrow (downward)
-        this.drawForceArrowInDiagram(ctx, centerX, centerY + boxSize/2, 0, gravityLength, '#e74c3c', `${gravity.toFixed(1)}N`, 'Fg');
+        this.drawForceArrowInDiagram(ctx, centerX, centerY + boxSize/2, 0, gravityLength, '#e74c3c', `Fg = ${gravity.toFixed(1)} N`, 'down');
         
         // Draw tension arrow (upward)
-        this.drawForceArrowInDiagram(ctx, centerX, centerY - boxSize/2, 0, -tensionLength, '#3498db', `${tension.toFixed(1)}N`, 'T');
+        this.drawForceArrowInDiagram(ctx, centerX, centerY - boxSize/2, 0, -tensionLength, '#3498db', `T = ${tension.toFixed(1)} N`, 'up');
     }
     
-    drawForceArrowInDiagram(ctx, x, y, dx, dy, color, valueLabel, forceLabel) {
+    drawForceArrowInDiagram(ctx, x, y, dx, dy, color, label, direction) {
         if (Math.abs(dy) < 2) return;
         
         ctx.save();
@@ -382,15 +382,11 @@ class AtwoodMachine {
         ctx.closePath();
         ctx.fill();
         
-        // Draw labels
-        ctx.font = 'bold 11px Arial';
-        ctx.textAlign = 'center';
+        // Draw label beside arrow
+        ctx.font = 'bold 10px Arial';
+        ctx.textAlign = 'left';
         ctx.fillStyle = color;
-        
-        const labelOffset = dy > 0 ? 15 : -15;
-        ctx.fillText(forceLabel, x + dx + 20, y + dy / 2);
-        ctx.font = '10px Arial';
-        ctx.fillText(valueLabel, x + dx + 20, y + dy / 2 + 12);
+        ctx.fillText(label, x + 5, y + dy / 2 + (direction === 'down' ? 5 : -5));
         
         ctx.restore();
     }
@@ -436,9 +432,11 @@ class AtwoodMachine {
         
         // Label
         this.ctx.fillStyle = color;
-        this.ctx.font = 'bold 16px Arial';
+        this.ctx.font = 'bold 14px Arial';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText(label, arrowX + 20, startY + (endY - startY)/2);
+        this.ctx.fillText(label, arrowX + 20, startY + (endY - startY)/2 - 10);
+        this.ctx.font = '11px Arial';
+        this.ctx.fillText(`${Math.abs(velocity).toFixed(1)} m/s`, arrowX + 20, startY + (endY - startY)/2 + 5);
     }
     
     drawAccelerationArrow(x, y, acceleration, color, label) {
@@ -484,9 +482,11 @@ class AtwoodMachine {
         
         // Label
         this.ctx.fillStyle = color;
-        this.ctx.font = 'bold 16px Arial';
+        this.ctx.font = 'bold 14px Arial';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText(label, arrowX + 20, startY + (endY - startY)/2);
+        this.ctx.fillText(label, arrowX + 20, startY + (endY - startY)/2 - 10);
+        this.ctx.font = '11px Arial';
+        this.ctx.fillText(`${Math.abs(acceleration).toFixed(2)} m/s²`, arrowX + 20, startY + (endY - startY)/2 + 5);
     }
     
     drawMass(x, y, mass, color, label) {
