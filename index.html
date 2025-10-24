@@ -37,7 +37,7 @@
                             <label for="initialVelocity">Initial Velocity (v₀)</label>
                             <input type="range" id="initialVelocity" min="-10" max="10" step="0.5" value="0">
                             <span class="value-display" id="velocityDisplay">0.0 m/s</span>
-                            <small>Positive: m₁ moves down | Negative: m₁ moves up</small>
+                            <small>Positive: Clockwise (m₂↓, m₁↑) | Negative: Counterclockwise (m₁↓, m₂↑)</small>
                         </div>
 
                         <div class="button-group">
@@ -84,6 +84,10 @@
                         We can analyze the Atwood machine using the <strong>system method</strong>, 
                         treating both masses together as a single system. This elegant approach 
                         avoids dealing with tension forces internally.
+                    </p>
+                    <p>
+                        <strong>Sign Convention:</strong> We use the convention that <em>clockwise rotation is positive</em>. 
+                        This means positive velocity/acceleration corresponds to m₂ moving down and m₁ moving up.
                     </p>
                     
                     <h3>Step 1: Define the System</h3>

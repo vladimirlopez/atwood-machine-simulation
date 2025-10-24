@@ -6,15 +6,15 @@ class AtwoodMachine {
         this.g = 9.8; // gravitational acceleration (m/s²)
         
         // Physical properties
-        this.mass1 = 2; // kg
-        this.mass2 = 3; // kg
-        this.initialVelocity = 0; // m/s (positive = mass1 down)
-        this.velocity = 0; // m/s
-        this.acceleration = 0; // m/s²
+        this.mass1 = 2; // kg (left side)
+        this.mass2 = 3; // kg (right side)
+        this.initialVelocity = 0; // m/s (positive = clockwise = mass2 down, mass1 up)
+        this.velocity = 0; // m/s (positive = clockwise rotation)
+        this.acceleration = 0; // m/s² (positive = clockwise acceleration)
         this.tension = 0; // N
         
         // Position and animation
-        this.position1 = 0; // meters from initial position (positive = down)
+        this.position2 = 0; // meters from initial position for mass2 (positive = down)
         this.pixelsPerMeter = 40;
         this.time = 0;
         this.dt = 0.016; // ~60 FPS
@@ -47,7 +47,7 @@ class AtwoodMachine {
     
     reset() {
         this.velocity = this.initialVelocity;
-        this.position1 = 0;
+        this.position2 = 0;
         this.time = 0;
         this.calculate();
         this.draw();
@@ -72,16 +72,16 @@ class AtwoodMachine {
     animate() {
         if (!this.isRunning) return;
         
-        // Update physics
+        // Update physics (positive velocity = clockwise = mass2 down)
         this.velocity += this.acceleration * this.dt;
-        this.position1 += this.velocity * this.dt;
+        this.position2 += this.velocity * this.dt;
         this.time += this.dt;
         
         // Check boundaries (prevent masses from going off screen)
-        const maxPosition = (this.canvas.height - this.mass1InitialY - 60) / this.pixelsPerMeter;
-        const minPosition = -(this.mass1InitialY - this.pulleyY - 60) / this.pixelsPerMeter;
+        const maxPosition = (this.canvas.height - this.mass2InitialY - 60) / this.pixelsPerMeter;
+        const minPosition = -(this.mass2InitialY - this.pulleyY - 60) / this.pixelsPerMeter;
         
-        if (this.position1 > maxPosition || this.position1 < minPosition) {
+        if (this.position2 > maxPosition || this.position2 < minPosition) {
             this.pause();
         }
         
@@ -95,9 +95,9 @@ class AtwoodMachine {
         // Clear canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // Calculate current positions
-        const mass1Y = this.mass1InitialY + this.position1 * this.pixelsPerMeter;
-        const mass2Y = this.mass2InitialY - this.position1 * this.pixelsPerMeter;
+        // Calculate current positions (positive position2 = mass2 down, mass1 up)
+        const mass1Y = this.mass1InitialY - this.position2 * this.pixelsPerMeter;
+        const mass2Y = this.mass2InitialY + this.position2 * this.pixelsPerMeter;
         
         const mass1X = this.centerX - 100;
         const mass2X = this.centerX + 100;
@@ -133,35 +133,40 @@ class AtwoodMachine {
         this.ctx.fillStyle = '#495057';
         this.ctx.fill();
         
-        // Draw ropes (proper physics - over the pulley)
+        // Draw ropes (tangent to pulley - proper physics)
         this.ctx.strokeStyle = '#6c757d';
         this.ctx.lineWidth = 3;
         
-        // Calculate rope angles
-        const leftAngle = Math.atan2(mass1Y - this.pulleyY, mass1X - this.centerX);
-        const rightAngle = Math.atan2(mass2Y - this.pulleyY, mass2X - this.centerX);
+        // For vertical ropes tangent to a pulley:
+        // Left rope is tangent at the left side of pulley (90° from vertical)
+        // Right rope is tangent at the right side of pulley (90° from vertical)
         
-        // Left rope - from mass to pulley edge
-        const leftPulleyX = this.centerX + this.pulleyRadius * Math.cos(leftAngle);
-        const leftPulleyY = this.pulleyY + this.pulleyRadius * Math.sin(leftAngle);
+        // Left rope tangent point (left side of pulley)
+        const leftTangentX = this.centerX - this.pulleyRadius;
+        const leftTangentY = this.pulleyY;
         
+        // Right rope tangent point (right side of pulley)
+        const rightTangentX = this.centerX + this.pulleyRadius;
+        const rightTangentY = this.pulleyY;
+        
+        // Draw left rope (straight vertical line from mass to tangent point)
         this.ctx.beginPath();
         this.ctx.moveTo(mass1X, mass1Y - 25);
-        this.ctx.lineTo(leftPulleyX, leftPulleyY);
+        this.ctx.lineTo(mass1X, leftTangentY);
+        this.ctx.lineTo(leftTangentX, leftTangentY);
         this.ctx.stroke();
         
-        // Right rope - from mass to pulley edge
-        const rightPulleyX = this.centerX + this.pulleyRadius * Math.cos(rightAngle);
-        const rightPulleyY = this.pulleyY + this.pulleyRadius * Math.sin(rightAngle);
-        
+        // Draw right rope (straight vertical line from mass to tangent point)
         this.ctx.beginPath();
         this.ctx.moveTo(mass2X, mass2Y - 25);
-        this.ctx.lineTo(rightPulleyX, rightPulleyY);
+        this.ctx.lineTo(mass2X, rightTangentY);
+        this.ctx.lineTo(rightTangentX, rightTangentY);
         this.ctx.stroke();
         
-        // Draw rope arc over pulley
+        // Draw rope arc over pulley (from left tangent to right tangent, going over the top)
+        // In standard orientation: left tangent at 180°, over the top, to right tangent at 0°
         this.ctx.beginPath();
-        this.ctx.arc(this.centerX, this.pulleyY, this.pulleyRadius, leftAngle, rightAngle);
+        this.ctx.arc(this.centerX, this.pulleyY, this.pulleyRadius, Math.PI, 0, false);
         this.ctx.stroke();
         
         // Draw masses
