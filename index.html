@@ -33,7 +33,7 @@
             <div class="simulation-panel">
                 <div class="simulation-container">
                     <div class="canvas-area">
-                        <canvas id="atwoodCanvas" width="800" height="700" role="img" aria-label="Atwood machine simulation showing two masses connected by a rope over a pulley"></canvas>
+                        <canvas id="atwoodCanvas" width="700" height="600" role="img" aria-label="Atwood machine simulation showing two masses connected by a rope over a pulley"></canvas>
                         
                         <!-- Force Diagram Boxes -->
                         <div class="force-diagrams hidden" id="forceDiagrams">
@@ -141,99 +141,6 @@
                     <section class="info-section exploration-section">
                         <h2>🔍 Guided Exploration</h2>
                         <p class="exploration-intro">Try these experiments to deepen your understanding:</p>
-                    <p>
-                        We can analyze the Atwood machine using the <strong>system method</strong>, 
-                        treating both masses together as a single system. This elegant approach 
-                        avoids dealing with tension forces internally.
-                    </p>
-                    <p>
-                        <strong>Sign Convention:</strong> We use the convention that <em>clockwise rotation is positive</em>. 
-                        This means positive velocity/acceleration corresponds to \(m_2\) moving down and \(m_1\) moving up.
-                    </p>
-                    
-                    <h3>Step 1: Define the System</h3>
-                    <p>
-                        Consider both masses (\(m_1\) and \(m_2\)) as one system. The only <em>external</em> 
-                        forces acting on this system are the gravitational forces on each mass.
-                    </p>
-                    
-                    <h3>Step 2: Find the Net Force (\(F_{\text{NET}}\))</h3>
-                    <p>
-                        If \(m_2 > m_1\), the net external force pulling the system is:
-                    </p>
-                    <div class="equation">
-                        $$F_{\text{NET}} = m_2g - m_1g = g(m_2 - m_1)$$
-                    </div>
-                    <p>
-                        The tension (\(F_T\)) is an <strong>internal force</strong> that cancels out when 
-                        considering the whole system—it pulls equally on both masses in opposite directions.
-                    </p>
-                    
-                    <h3>Step 3: Apply Newton's Second Law</h3>
-                    <p>
-                        The total mass of the system is \((m_1 + m_2)\), so:
-                    </p>
-                    <div class="equation">
-                        $$F_{\text{NET}} = (m_1 + m_2)a$$
-                    </div>
-                    <p>
-                        Combining our equations:
-                    </p>
-                    <div class="equation">
-                        $$g(m_2 - m_1) = (m_1 + m_2)a$$
-                    </div>
-                    <p>
-                        Solving for acceleration:
-                    </p>
-                    <div class="equation">
-                        $$a = \frac{g(m_2 - m_1)}{m_1 + m_2}$$
-                    </div>
-                    
-                    <h3>Finding Tension (\(F_T\))</h3>
-                    <p>
-                        To find the tension, we isolate one mass. For \(m_1\):
-                    </p>
-                    <div class="equation">
-                        $$F_T - m_1g = m_1a$$
-                    </div>
-                    <p>
-                        Substituting our expression for \(a\) and simplifying:
-                    </p>
-                    <div class="equation">
-                        $$F_T = \frac{2m_1m_2g}{m_1 + m_2}$$
-                    </div>
-                    <p>
-                        <small><em>Where \(g = 9.8 \, \text{m/s}^2\)</em></small>
-                    </p>
-                </section>
-
-                <section class="info-section">
-                    <h2>Key Insights</h2>
-                    <ul>
-                        <li>
-                            <strong>Direction of Acceleration vs. Motion:</strong> The acceleration tells us 
-                            how velocity is changing, not the direction of motion. An object can move upward 
-                            while accelerating downward (decelerating)!
-                        </li>
-                        <li>
-                            <strong>Equal Masses:</strong> When m₁ = m₂, the acceleration is zero. The system 
-                            moves with constant velocity (including zero velocity if starting from rest).
-                        </li>
-                        <li>
-                            <strong>Initial Velocity:</strong> Try setting different initial velocities to see 
-                            how the system behaves. Even if the calculated acceleration points one way, the 
-                            masses might initially move in the opposite direction!
-                        </li>
-                        <li>
-                            <strong>Frictionless Assumption:</strong> Real pulleys have friction and mass, 
-                            which affect the motion. This simulation uses the idealized case.
-                        </li>
-                    </ul>
-                </section>
-
-                <section class="info-section exploration-section">
-                    <h2>🔍 Guided Exploration</h2>
-                    <p class="exploration-intro">Try these experiments to deepen your understanding:</p>
                     
                     <details class="exploration-item">
                         <summary>What happens when the masses are equal?</summary>

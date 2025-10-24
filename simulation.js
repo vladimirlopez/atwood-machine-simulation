@@ -60,10 +60,10 @@ class AtwoodMachine {
         
         // Canvas dimensions
         this.centerX = this.canvasWidth / 2;
-        this.pulleyY = 120;
-        this.pulleyRadius = 40;
-        this.ropeLength = 260;
-        this.maxRopeLength = 240; // Maximum rope extension (blocks stop before touching pulley)
+        this.pulleyY = 100;
+        this.pulleyRadius = 35;
+        this.ropeLength = 220;
+        this.maxRopeLength = 200; // Maximum rope extension (blocks stop before touching pulley)
         
         // Initial positions
         this.mass1InitialY = this.pulleyY + this.ropeLength;
