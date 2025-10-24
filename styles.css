@@ -98,8 +98,8 @@ header h1 {
 
 #atwoodCanvas {
     display: block;
-    width: 600px;
-    height: 550px;
+    width: 700px;
+    height: 650px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     background: linear-gradient(to bottom, #f0f8ff 0%, #ffffff 100%);
@@ -226,29 +226,35 @@ header h1 {
 
 .info-display {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 8px;
-    padding: 12px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    padding: 15px;
     background: var(--light-bg);
     border-radius: 6px;
     border: 1px solid var(--border-color);
+    margin-top: 15px;
 }
 
 .info-item {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+    background: white;
+    border-radius: 4px;
 }
 
 .info-item .label {
-    font-size: 0.9em;
+    font-size: 0.85em;
     color: var(--light-text);
     margin-bottom: 5px;
 }
 
 .info-item .value {
-    font-size: 1.3em;
+    font-size: 1.4em;
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--secondary-color);
 }
 
 .info-panel {
@@ -631,7 +637,8 @@ input:invalid + .error-message {
     }
     
     .info-display {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
     }
     
     .button-group {

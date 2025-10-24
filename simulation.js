@@ -63,7 +63,7 @@ class AtwoodMachine {
         this.pulleyY = 100;
         this.pulleyRadius = 38;
         this.ropeLength = 240;
-        this.maxRopeLength = 215; // Maximum rope extension (blocks stop before touching pulley)
+        this.maxRopeLength = 175; // Maximum rope extension (blocks stop well before touching pulley - needs 38+25=63px clearance)
         
         // Initial positions
         this.mass1InitialY = this.pulleyY + this.ropeLength;
@@ -394,9 +394,9 @@ class AtwoodMachine {
     drawVelocityArrow(x, y, velocity, color, label) {
         if (Math.abs(velocity) < 0.05) return;
         const scale = 20; // pixels per m/s
-        const arrowLength = velocity * scale; // No clamping - let it scale naturally
+        const arrowLength = velocity * scale;
         const startY = y;
-        const endY = y + arrowLength; // Positive = down, negative = up
+        const endY = y + arrowLength;
         const arrowX = x;
         
         // Double arrow shaft (vertical lines)
@@ -430,21 +430,20 @@ class AtwoodMachine {
         this.ctx.closePath();
         this.ctx.fill();
         
-        // Label
+        // Just the label, no numbers
         this.ctx.fillStyle = color;
-        this.ctx.font = 'bold 14px Arial';
+        this.ctx.font = 'bold 16px Arial';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText(label, arrowX + 20, startY + (endY - startY)/2 - 10);
-        this.ctx.font = '11px Arial';
-        this.ctx.fillText(`${Math.abs(velocity).toFixed(1)} m/s`, arrowX + 20, startY + (endY - startY)/2 + 5);
+        const labelY = startY + (endY - startY)/2;
+        this.ctx.fillText(label, arrowX + 25, labelY);
     }
     
     drawAccelerationArrow(x, y, acceleration, color, label) {
         if (Math.abs(acceleration) < 0.01) return;
         const scale = 20; // pixels per m/s²
-        const arrowLength = acceleration * scale; // No clamping - let it scale naturally
+        const arrowLength = acceleration * scale;
         const startY = y;
-        const endY = y + arrowLength; // Positive = down, negative = up
+        const endY = y + arrowLength;
         const arrowX = x;
         
         // Double dashed arrow shaft (vertical lines)
@@ -480,13 +479,12 @@ class AtwoodMachine {
         this.ctx.closePath();
         this.ctx.fill();
         
-        // Label
+        // Just the label, no numbers
         this.ctx.fillStyle = color;
-        this.ctx.font = 'bold 14px Arial';
+        this.ctx.font = 'bold 16px Arial';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText(label, arrowX + 20, startY + (endY - startY)/2 - 10);
-        this.ctx.font = '11px Arial';
-        this.ctx.fillText(`${Math.abs(acceleration).toFixed(2)} m/s²`, arrowX + 20, startY + (endY - startY)/2 + 5);
+        const labelY = startY + (endY - startY)/2;
+        this.ctx.fillText(label, arrowX + 25, labelY);
     }
     
     drawMass(x, y, mass, color, label) {
@@ -583,67 +581,15 @@ class AtwoodMachine {
     }
 
     drawLabels() {
-        // Save context state
-        this.ctx.save();
-        
-        // Draw sign convention info with visual indicator
-        const labelX = 10;
-        const labelY = this.canvasHeight - 30;
-        
-        // Background box
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        this.ctx.fillRect(labelX, labelY - 15, 280, 30);
-        
-        // Box border (separate from background to ensure clean rendering)
-        this.ctx.beginPath();
-        this.ctx.strokeStyle = '#495057';
-        this.ctx.lineWidth = 1;
-        this.ctx.rect(labelX, labelY - 15, 280, 30);
-        this.ctx.stroke();
-        this.ctx.closePath();
-        
-        // Text
-        this.ctx.fillStyle = '#495057';
-        this.ctx.font = 'bold 12px Arial';
-        this.ctx.textAlign = 'left';
-        this.ctx.fillText('Sign Convention: Clockwise ⟳ = Positive (+)', labelX + 8, labelY + 3);
-        
-        // Small rotating arrow indicator
-        const arrowX = labelX + 250;
-        const arrowY = labelY;
-        const arrowR = 10;
-        
-        // Green clockwise arrow (start fresh path)
-        this.ctx.beginPath();
-        this.ctx.strokeStyle = '#28a745';
-        this.ctx.lineWidth = 2;
-        this.ctx.arc(arrowX, arrowY, arrowR, -Math.PI * 0.3, Math.PI * 0.3, false);
-        this.ctx.stroke();
-        this.ctx.closePath();
-        
-        // Arrowhead
-        const headAngle = Math.PI * 0.3;
-        const headX = arrowX + arrowR * Math.cos(headAngle);
-        const headY = arrowY + arrowR * Math.sin(headAngle);
-        this.ctx.beginPath();
-        this.ctx.fillStyle = '#28a745';
-        this.ctx.moveTo(headX, headY);
-        this.ctx.lineTo(headX + 5 * Math.cos(headAngle + Math.PI / 2 + 0.3), 
-                       headY + 5 * Math.sin(headAngle + Math.PI / 2 + 0.3));
-        this.ctx.lineTo(headX + 5 * Math.cos(headAngle + Math.PI / 2 - 0.3), 
-                       headY + 5 * Math.sin(headAngle + Math.PI / 2 - 0.3));
-        this.ctx.closePath();
-        this.ctx.fill();
-        
-        // Restore context state
-        this.ctx.restore();
+        // Sign convention is now shown in the initial velocity help text
+        // No need for the box with green line that won't go away
     }
     
     updateDisplay() {
-        document.getElementById('currentAcceleration').textContent = this.acceleration.toFixed(2);
-        document.getElementById('currentVelocity').textContent = this.velocity.toFixed(2);
-        document.getElementById('currentTension').textContent = this.tension.toFixed(2);
-        document.getElementById('currentTime').textContent = this.time.toFixed(2);
+        document.getElementById('currentAcceleration').textContent = this.acceleration.toFixed(2) + ' m/s²';
+        document.getElementById('currentVelocity').textContent = this.velocity.toFixed(2) + ' m/s';
+        document.getElementById('currentTension').textContent = this.tension.toFixed(2) + ' N';
+        document.getElementById('currentTime').textContent = this.time.toFixed(2) + ' s';
     }
     
     setMass1(mass) {
@@ -740,10 +686,12 @@ class AtwoodMachine {
         
         if (timeData.length < 2) return;
         
-        // Calculate scales
-        const timeMin = Math.min(...timeData);
-        const timeMax = Math.max(...timeData);
-        const timeRange = timeMax - timeMin || 1;
+        // Calculate scales - use fixed time window
+        const currentTime = timeData[timeData.length - 1];
+        const timeWindow = 10; // Show last 10 seconds
+        const timeMin = Math.max(0, currentTime - timeWindow);
+        const timeMax = Math.max(timeWindow, currentTime);
+        const timeRange = timeMax - timeMin;
         const yRange = yMax - yMin;
         
         // Draw axes
@@ -770,12 +718,17 @@ class AtwoodMachine {
         ctx.lineWidth = 2;
         ctx.beginPath();
         
+        let firstPoint = true;
         for (let i = 0; i < timeData.length; i++) {
+            // Only draw points within the time window
+            if (timeData[i] < timeMin) continue;
+            
             const x = padding + ((timeData[i] - timeMin) / timeRange) * (width - 2 * padding);
             const y = height - padding - ((yData[i] - yMin) / yRange) * (height - 2 * padding);
             
-            if (i === 0) {
+            if (firstPoint) {
                 ctx.moveTo(x, y);
+                firstPoint = false;
             } else {
                 ctx.lineTo(x, y);
             }
