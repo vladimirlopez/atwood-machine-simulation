@@ -15,9 +15,9 @@ class AtwoodMachine {
         
         // Position and animation
         this.position2 = 0; // meters from initial position for mass2 (positive = down)
-        this.pixelsPerMeter = 40;
+        this.pixelsPerMeter = 25; // Slower motion for clarity
         this.time = 0;
-        this.dt = 0.016; // ~60 FPS
+        this.dt = 0.008; // ~120 FPS, but slower per frame
         
         // Animation state
         this.isRunning = false;
@@ -46,8 +46,8 @@ class AtwoodMachine {
     }
     
     reset() {
-        this.velocity = this.initialVelocity;
         this.position2 = 0;
+        this.velocity = this.initialVelocity;
         this.time = 0;
         this.calculate();
         this.draw();
@@ -163,45 +163,112 @@ class AtwoodMachine {
         this.drawMass(mass1X, mass1Y, this.mass1, '#2fa4e7', 'm₁');
         this.drawMass(mass2X, mass2Y, this.mass2, '#e74c3c', 'm₂');
         
-        // Draw velocity vectors
-        this.drawVelocityVector(mass1X, mass1Y, this.velocity, '#28a745');
-        this.drawVelocityVector(mass2X, mass2Y, -this.velocity, '#28a745');
+        // Draw velocity and acceleration arrows BESIDE each mass
+        // Draw velocity and acceleration arrows BESIDE each mass
+        // Left mass (m1) - velocity is positive when m1 goes UP (opposite of position2)
+        this.drawVelocityArrow(mass1X - 50, mass1Y, -this.velocity, '#28a745', 'v');
+        this.drawAccelerationArrow(mass1X - 90, mass1Y, -this.acceleration, '#ffc107', 'a');
         
-        // Draw acceleration vectors
-        if (Math.abs(this.acceleration) > 0.01) {
-            this.drawAccelerationVector(mass1X, mass1Y, this.acceleration, '#ffc107');
-            this.drawAccelerationVector(mass2X, mass2Y, -this.acceleration, '#ffc107');
-        }
+        // Right mass (m2) - velocity is positive when m2 goes DOWN (same as position2)
+        this.drawVelocityArrow(mass2X + 50, mass2Y, this.velocity, '#28a745', 'v');
+        this.drawAccelerationArrow(mass2X + 90, mass2Y, this.acceleration, '#ffc107', 'a');
         
         // Draw labels
         this.drawLabels();
     }
     
-    drawMass(x, y, mass, color, label) {
-        const size = 20 + mass * 8;
+    drawVelocityArrow(x, y, velocity, color, label) {
+        if (Math.abs(velocity) < 0.05) return;
+        const scale = 20; // pixels per m/s
+        const arrowLength = velocity * scale; // No clamping - let it scale naturally
+        const startY = y;
+        const endY = y + arrowLength; // Positive = down, negative = up
+        const arrowX = x;
         
-        // Shadow
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-        this.ctx.fillRect(x - size/2 + 3, y - size/2 + 3, size, size);
+        // Double arrow shaft (vertical lines)
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = 4;
+        this.ctx.beginPath();
+        this.ctx.moveTo(arrowX - 6, startY);
+        this.ctx.lineTo(arrowX - 6, endY);
+        this.ctx.moveTo(arrowX + 6, startY);
+        this.ctx.lineTo(arrowX + 6, endY);
+        this.ctx.stroke();
         
-        // Mass block
+        // Arrow heads
+        const headSize = 12;
+        const direction = arrowLength > 0 ? 1 : -1;
         this.ctx.fillStyle = color;
-        this.ctx.fillRect(x - size/2, y - size/2, size, size);
-        this.ctx.strokeStyle = '#2c3e50';
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeRect(x - size/2, y - size/2, size, size);
+        
+        // Left arrow head
+        this.ctx.beginPath();
+        this.ctx.moveTo(arrowX - 6, endY);
+        this.ctx.lineTo(arrowX - 6 - headSize/2, endY - direction * headSize);
+        this.ctx.lineTo(arrowX - 6 + headSize/2, endY - direction * headSize);
+        this.ctx.closePath();
+        this.ctx.fill();
+        
+        // Right arrow head
+        this.ctx.beginPath();
+        this.ctx.moveTo(arrowX + 6, endY);
+        this.ctx.lineTo(arrowX + 6 - headSize/2, endY - direction * headSize);
+        this.ctx.lineTo(arrowX + 6 + headSize/2, endY - direction * headSize);
+        this.ctx.closePath();
+        this.ctx.fill();
         
         // Label
-        this.ctx.fillStyle = 'white';
+        this.ctx.fillStyle = color;
         this.ctx.font = 'bold 16px Arial';
         this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.fillText(label, x, y - 5);
+        this.ctx.fillText(label, arrowX + 20, startY + (endY - startY)/2);
+    }
+    
+    drawAccelerationArrow(x, y, acceleration, color, label) {
+        if (Math.abs(acceleration) < 0.01) return;
+        const scale = 20; // pixels per m/s²
+        const arrowLength = acceleration * scale; // No clamping - let it scale naturally
+        const startY = y;
+        const endY = y + arrowLength; // Positive = down, negative = up
+        const arrowX = x;
         
-        // Mass value
-        this.ctx.fillStyle = '#2c3e50';
-        this.ctx.font = 'bold 12px Arial';
-        this.ctx.fillText(mass.toFixed(1) + ' kg', x, y + 10);
+        // Double dashed arrow shaft (vertical lines)
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = 3;
+        this.ctx.setLineDash([7, 5]);
+        this.ctx.beginPath();
+        this.ctx.moveTo(arrowX - 5, startY);
+        this.ctx.lineTo(arrowX - 5, endY);
+        this.ctx.moveTo(arrowX + 5, startY);
+        this.ctx.lineTo(arrowX + 5, endY);
+        this.ctx.stroke();
+        this.ctx.setLineDash([]);
+        
+        // Arrow heads
+        const headSize = 10;
+        const direction = arrowLength > 0 ? 1 : -1;
+        this.ctx.fillStyle = color;
+        
+        // Left arrow head
+        this.ctx.beginPath();
+        this.ctx.moveTo(arrowX - 5, endY);
+        this.ctx.lineTo(arrowX - 5 - headSize/2, endY - direction * headSize);
+        this.ctx.lineTo(arrowX - 5 + headSize/2, endY - direction * headSize);
+        this.ctx.closePath();
+        this.ctx.fill();
+        
+        // Right arrow head
+        this.ctx.beginPath();
+        this.ctx.moveTo(arrowX + 5, endY);
+        this.ctx.lineTo(arrowX + 5 - headSize/2, endY - direction * headSize);
+        this.ctx.lineTo(arrowX + 5 + headSize/2, endY - direction * headSize);
+        this.ctx.closePath();
+        this.ctx.fill();
+        
+        // Label
+        this.ctx.fillStyle = color;
+        this.ctx.font = 'bold 16px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText(label, arrowX + 20, startY + (endY - startY)/2);
     }
     
     drawVelocityVector(x, y, velocity, color) {
@@ -316,76 +383,86 @@ class AtwoodMachine {
         this.ctx.fillText('a', x + xOffset + 20, (startY + endY) / 2);
     }
     
+    drawMass(x, y, mass, color, label) {
+        const width = 50;
+        const height = 50;
+        
+        // Draw mass box
+        this.ctx.fillStyle = color;
+        this.ctx.fillRect(x - width/2, y - height/2, width, height);
+        this.ctx.strokeStyle = '#2c3e50';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(x - width/2, y - height/2, width, height);
+        
+        // Draw mass label
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = 'bold 16px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText(label, x, y - 8);
+        this.ctx.font = '12px Arial';
+        this.ctx.fillText(mass.toFixed(1) + ' kg', x, y + 8);
+    }
+    
     drawLabels() {
-        // Legend at bottom
-        const legendY = this.canvas.height - 30;
-        this.ctx.fillStyle = '#2c3e50';
-        this.ctx.font = 'bold 12px Arial';
+        // Draw sign convention info
+        this.ctx.fillStyle = '#495057';
+        this.ctx.font = '12px Arial';
         this.ctx.textAlign = 'left';
-        
-        // Velocity legend (double arrow)
-        this.ctx.fillStyle = '#28a745';
-        this.ctx.fillText('⇉', 20, legendY);
-        this.ctx.fillStyle = '#2c3e50';
-        this.ctx.fillText('Velocity (v)', 40, legendY);
-        
-        // Acceleration legend (double dashed arrow)
-        this.ctx.fillStyle = '#ffc107';
-        this.ctx.fillText('⇉', 140, legendY);
-        this.ctx.fillStyle = '#2c3e50';
-        this.ctx.fillText('Acceleration (a)', 160, legendY);
+        this.ctx.fillText('Sign Convention: Clockwise = Positive', 10, this.canvas.height - 10);
     }
     
     updateDisplay() {
-        document.getElementById('accelerationValue').textContent = this.acceleration.toFixed(2) + ' m/s²';
-        document.getElementById('currentVelocity').textContent = this.velocity.toFixed(2) + ' m/s';
-        document.getElementById('tensionValue').textContent = this.tension.toFixed(2) + ' N';
-        document.getElementById('timeValue').textContent = this.time.toFixed(2) + ' s';
+        document.getElementById('currentAcceleration').textContent = this.acceleration.toFixed(2);
+        document.getElementById('currentVelocity').textContent = this.velocity.toFixed(2);
+        document.getElementById('currentTension').textContent = this.tension.toFixed(2);
+        document.getElementById('currentTime').textContent = this.time.toFixed(2);
     }
     
     setMass1(mass) {
         this.mass1 = parseFloat(mass);
+        if (this.mass1 < 0.1) this.mass1 = 0.1;
+        if (this.mass1 > 10) this.mass1 = 10;
         this.calculate();
-        if (!this.isRunning) {
-            this.draw();
-            this.updateDisplay();
-        }
+        this.draw();
+        this.updateDisplay();
     }
     
     setMass2(mass) {
         this.mass2 = parseFloat(mass);
+        if (this.mass2 < 0.1) this.mass2 = 0.1;
+        if (this.mass2 > 10) this.mass2 = 10;
         this.calculate();
-        if (!this.isRunning) {
-            this.draw();
-            this.updateDisplay();
-        }
+        this.draw();
+        this.updateDisplay();
     }
     
     setInitialVelocity(velocity) {
         this.initialVelocity = parseFloat(velocity);
-        if (!this.isRunning) {
-            this.velocity = this.initialVelocity;
-            this.updateDisplay();
-        }
+        if (this.initialVelocity < -5) this.initialVelocity = -5;
+        if (this.initialVelocity > 5) this.initialVelocity = 5;
+        this.velocity = this.initialVelocity;
+        this.draw();
+        this.updateDisplay();
     }
 }
 
 // Initialize simulation
-const canvas = document.getElementById('atwoodCanvas');
-const simulation = new AtwoodMachine(canvas);
+var canvas = document.getElementById('atwoodCanvas');
+var simulation = new AtwoodMachine(canvas);
 
 // Control elements
-const mass1Input = document.getElementById('mass1');
-const mass2Input = document.getElementById('mass2');
-const velocityInput = document.getElementById('initialVelocity');
-const startBtn = document.getElementById('startBtn');
-const pauseBtn = document.getElementById('pauseBtn');
-const resetBtn = document.getElementById('resetBtn');
+var mass1Input = document.getElementById('mass1');
+var mass2Input = document.getElementById('mass2');
+var velocityInput = document.getElementById('initialVelocity');
+var startBtn = document.getElementById('startBtn');
+var pauseBtn = document.getElementById('pauseBtn');
+var resetBtn = document.getElementById('resetBtn');
 
 // Display elements
-const mass1Display = document.getElementById('mass1Display');
-const mass2Display = document.getElementById('mass2Display');
-const velocityDisplay = document.getElementById('velocityDisplay');
+var mass1Display = document.getElementById('mass1Display');
+var mass2Display = document.getElementById('mass2Display');
+var velocityDisplay = document.getElementById('velocityDisplay');
 
 // Event listeners
 mass1Input.addEventListener('input', (e) => {

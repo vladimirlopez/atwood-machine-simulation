@@ -37,7 +37,7 @@
 
                         <div class="control-group">
                             <label for="initialVelocity">Initial Velocity (v₀)</label>
-                            <input type="range" id="initialVelocity" min="-10" max="10" step="0.5" value="0">
+                            <input type="range" id="initialVelocity" min="-5" max="5" step="0.1" value="0">
                             <span class="value-display" id="velocityDisplay">0.0 m/s</span>
                             <small>Positive: Clockwise (m₂↓, m₁↑) | Negative: Counterclockwise (m₁↓, m₂↑)</small>
                         </div>
@@ -51,19 +51,19 @@
                         <div class="info-display">
                             <div class="info-item">
                                 <span class="label">Acceleration (a):</span>
-                                <span class="value" id="accelerationValue">0.00 m/s²</span>
+                                <span class="value" id="currentAcceleration">0.00 m/s²</span>
                             </div>
                             <div class="info-item">
                                 <span class="label">Velocity (v):</span>
                                 <span class="value" id="currentVelocity">0.00 m/s</span>
                             </div>
                             <div class="info-item">
-                                <span class="label">Tension (F_T):</span>
-                                <span class="value" id="tensionValue">0.00 N</span>
+                                <span class="label">Tension (F<sub>T</sub>):</span>
+                                <span class="value" id="currentTension">0.00 N</span>
                             </div>
                             <div class="info-item">
                                 <span class="label">Time (t):</span>
-                                <span class="value" id="timeValue">0.00 s</span>
+                                <span class="value" id="currentTime">0.00 s</span>
                             </div>
                         </div>
                     </div>
