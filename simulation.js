@@ -3,6 +3,26 @@ class AtwoodMachine {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
+        
+        // Scale canvas for high DPI displays (sharper rendering)
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        this.ctx.scale(dpr, dpr);
+        
+        // Store CSS dimensions for calculations
+        this.canvasWidth = rect.width;
+        this.canvasHeight = rect.height;
+        
+        // Use CSS size for layout
+        canvas.style.width = rect.width + 'px';
+        canvas.style.height = rect.height + 'px';
+        
+        // Enable anti-aliasing for smoother lines
+        this.ctx.imageSmoothingEnabled = true;
+        this.ctx.imageSmoothingQuality = 'high';
+        
         this.g = 9.8; // gravitational acceleration (m/s²)
         
         // Physical properties
@@ -19,15 +39,19 @@ class AtwoodMachine {
         this.time = 0;
         this.dt = 0.008; // ~120 FPS, but slower per frame
         
+        // Pulley rotation angle for animation
+        this.pulleyAngle = 0; // radians
+        
         // Animation state
         this.isRunning = false;
         this.animationId = null;
         
         // Canvas dimensions
-        this.centerX = canvas.width / 2;
+        this.centerX = this.canvasWidth / 2;
         this.pulleyY = 100;
         this.pulleyRadius = 35;
         this.ropeLength = 220;
+        this.maxRopeLength = 200; // Maximum rope extension (blocks stop before touching pulley)
         
         // Initial positions
         this.mass1InitialY = this.pulleyY + this.ropeLength;
@@ -77,9 +101,13 @@ class AtwoodMachine {
         this.position2 += this.velocity * this.dt;
         this.time += this.dt;
         
-        // Check boundaries (prevent masses from going off screen)
-        const maxPosition = (this.canvas.height - this.mass2InitialY - 60) / this.pixelsPerMeter;
-        const minPosition = -(this.mass2InitialY - this.pulleyY - 60) / this.pixelsPerMeter;
+        // Update pulley rotation angle based on rope movement
+        // Rotation angle = arc length / radius = position / radius
+        this.pulleyAngle = (this.position2 * this.pixelsPerMeter) / this.pulleyRadius;
+        
+        // Check boundaries (prevent masses from going off screen or touching pulley)
+        const maxPosition = this.maxRopeLength / this.pixelsPerMeter; // Bottom boundary
+        const minPosition = -this.maxRopeLength / this.pixelsPerMeter; // Top boundary (prevent touching pulley)
         
         if (this.position2 > maxPosition || this.position2 < minPosition) {
             this.pause();
@@ -123,7 +151,10 @@ class AtwoodMachine {
         this.ctx.lineTo(this.centerX, this.pulleyY - this.pulleyRadius);
         this.ctx.stroke();
         
-        // Draw pulley
+        // Draw pulley with rotation
+        this.ctx.save(); // Save context state
+        
+        // Draw pulley body
         this.ctx.beginPath();
         this.ctx.arc(this.centerX, this.pulleyY, this.pulleyRadius, 0, Math.PI * 2);
         this.ctx.fillStyle = '#adb5bd';
@@ -132,7 +163,76 @@ class AtwoodMachine {
         this.ctx.lineWidth = 3;
         this.ctx.stroke();
         
-        // Draw pulley center
+        // Draw rotation indicators (spokes that rotate)
+        this.ctx.translate(this.centerX, this.pulleyY);
+        this.ctx.rotate(this.pulleyAngle);
+        
+        // Draw 6 spokes
+        for (let i = 0; i < 6; i++) {
+            const angle = (i * Math.PI) / 3;
+            this.ctx.save();
+            this.ctx.rotate(angle);
+            
+            // Spoke line
+            this.ctx.strokeStyle = '#6c757d';
+            this.ctx.lineWidth = 2;
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, 0);
+            this.ctx.lineTo(this.pulleyRadius - 8, 0);
+            this.ctx.stroke();
+            
+            // Dot at end of spoke
+            this.ctx.beginPath();
+            this.ctx.arc(this.pulleyRadius - 8, 0, 3, 0, Math.PI * 2);
+            this.ctx.fillStyle = '#495057';
+            this.ctx.fill();
+            
+            this.ctx.restore();
+        }
+        
+        // Draw direction arrow on pulley (shows current rotation direction)
+        if (Math.abs(this.velocity) > 0.05) {
+            const arrowRadius = this.pulleyRadius * 0.6;
+            const arrowAngle = Math.PI * 0.4;
+            
+            this.ctx.strokeStyle = this.velocity > 0 ? '#28a745' : '#e74c3c';
+            this.ctx.lineWidth = 3;
+            this.ctx.beginPath();
+            
+            // Draw arc showing direction
+            if (this.velocity > 0) {
+                // Clockwise arrow (top right to bottom right)
+                this.ctx.arc(0, 0, arrowRadius, -arrowAngle, arrowAngle, false);
+            } else {
+                // Counterclockwise arrow (top left to bottom left)
+                this.ctx.arc(0, 0, arrowRadius, Math.PI - arrowAngle, Math.PI + arrowAngle, false);
+            }
+            this.ctx.stroke();
+            
+            // Draw arrowhead
+            const endAngle = this.velocity > 0 ? arrowAngle : Math.PI + arrowAngle;
+            const headX = arrowRadius * Math.cos(endAngle);
+            const headY = arrowRadius * Math.sin(endAngle);
+            const headAngle = endAngle + (this.velocity > 0 ? Math.PI / 2 : -Math.PI / 2);
+            
+            this.ctx.fillStyle = this.velocity > 0 ? '#28a745' : '#e74c3c';
+            this.ctx.beginPath();
+            this.ctx.moveTo(headX, headY);
+            this.ctx.lineTo(
+                headX + 8 * Math.cos(headAngle + 0.3),
+                headY + 8 * Math.sin(headAngle + 0.3)
+            );
+            this.ctx.lineTo(
+                headX + 8 * Math.cos(headAngle - 0.3),
+                headY + 8 * Math.sin(headAngle - 0.3)
+            );
+            this.ctx.closePath();
+            this.ctx.fill();
+        }
+        
+        this.ctx.restore(); // Restore context state
+        
+        // Draw pulley center (on top of spokes)
         this.ctx.beginPath();
         this.ctx.arc(this.centerX, this.pulleyY, 8, 0, Math.PI * 2);
         this.ctx.fillStyle = '#495057';
@@ -293,11 +393,56 @@ class AtwoodMachine {
     }
     
     drawLabels() {
-        // Draw sign convention info
+        // Save context state
+        this.ctx.save();
+        
+        // Draw sign convention info with visual indicator
+        const labelX = 10;
+        const labelY = this.canvasHeight - 30;
+        
+        // Background box
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        this.ctx.fillRect(labelX, labelY - 15, 280, 30);
+        
+        // Box border
+        this.ctx.strokeStyle = '#495057';
+        this.ctx.lineWidth = 1;
+        this.ctx.strokeRect(labelX, labelY - 15, 280, 30);
+        
+        // Text
         this.ctx.fillStyle = '#495057';
-        this.ctx.font = '12px Arial';
+        this.ctx.font = 'bold 12px Arial';
         this.ctx.textAlign = 'left';
-        this.ctx.fillText('Sign Convention: Clockwise = Positive', 10, this.canvas.height - 10);
+        this.ctx.fillText('Sign Convention: Clockwise ⟳ = Positive (+)', labelX + 8, labelY + 3);
+        
+        // Small rotating arrow indicator
+        const arrowX = labelX + 250;
+        const arrowY = labelY;
+        const arrowR = 10;
+        
+        // Green clockwise arrow
+        this.ctx.strokeStyle = '#28a745';
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.arc(arrowX, arrowY, arrowR, -Math.PI * 0.3, Math.PI * 0.3, false);
+        this.ctx.stroke();
+        
+        // Arrowhead
+        const headAngle = Math.PI * 0.3;
+        const headX = arrowX + arrowR * Math.cos(headAngle);
+        const headY = arrowY + arrowR * Math.sin(headAngle);
+        this.ctx.fillStyle = '#28a745';
+        this.ctx.beginPath();
+        this.ctx.moveTo(headX, headY);
+        this.ctx.lineTo(headX + 5 * Math.cos(headAngle + Math.PI / 2 + 0.3), 
+                       headY + 5 * Math.sin(headAngle + Math.PI / 2 + 0.3));
+        this.ctx.lineTo(headX + 5 * Math.cos(headAngle + Math.PI / 2 - 0.3), 
+                       headY + 5 * Math.sin(headAngle + Math.PI / 2 - 0.3));
+        this.ctx.closePath();
+        this.ctx.fill();
+        
+        // Restore context state
+        this.ctx.restore();
     }
     
     updateDisplay() {
