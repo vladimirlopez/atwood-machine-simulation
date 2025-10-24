@@ -95,12 +95,17 @@ class AtwoodMachine {
         // Clear canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
+        // Tangent points on the pulley (left and right edges)
+        const leftTangentX = this.centerX - this.pulleyRadius;
+        const rightTangentX = this.centerX + this.pulleyRadius;
+        
+        // Masses are directly below their respective tangent points
+        const mass1X = leftTangentX;
+        const mass2X = rightTangentX;
+        
         // Calculate current positions (positive position2 = mass2 down, mass1 up)
         const mass1Y = this.mass1InitialY - this.position2 * this.pixelsPerMeter;
         const mass2Y = this.mass2InitialY + this.position2 * this.pixelsPerMeter;
-        
-        const mass1X = this.centerX - 100;
-        const mass2X = this.centerX + 100;
         
         // Draw ceiling
         this.ctx.strokeStyle = '#495057';
@@ -133,29 +138,20 @@ class AtwoodMachine {
         this.ctx.fillStyle = '#495057';
         this.ctx.fill();
         
-        // Draw ropes (tangent to pulley - proper physics)
+        // Draw ropes (straight down from tangent points)
         this.ctx.strokeStyle = '#6c757d';
         this.ctx.lineWidth = 3;
         
-        // Tangent points on the pulley (left and right sides)
-        const leftTangentX = this.centerX - this.pulleyRadius;
-        const leftTangentY = this.pulleyY;
-        
-        const rightTangentX = this.centerX + this.pulleyRadius;
-        const rightTangentY = this.pulleyY;
-        
-        // Draw left rope (vertical from mass, then horizontal to tangent)
+        // Left rope - straight vertical line from mass to tangent point
         this.ctx.beginPath();
         this.ctx.moveTo(mass1X, mass1Y - 25);
-        this.ctx.lineTo(mass1X, leftTangentY);
-        this.ctx.lineTo(leftTangentX, leftTangentY);
+        this.ctx.lineTo(leftTangentX, this.pulleyY);
         this.ctx.stroke();
         
-        // Draw right rope (vertical from mass, then horizontal to tangent)
+        // Right rope - straight vertical line from mass to tangent point
         this.ctx.beginPath();
         this.ctx.moveTo(mass2X, mass2Y - 25);
-        this.ctx.lineTo(mass2X, rightTangentY);
-        this.ctx.lineTo(rightTangentX, rightTangentY);
+        this.ctx.lineTo(rightTangentX, this.pulleyY);
         this.ctx.stroke();
         
         // Draw rope arc over pulley (semicircle over the top)
