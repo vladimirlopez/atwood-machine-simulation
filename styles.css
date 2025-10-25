@@ -437,40 +437,6 @@ footer {
     font-weight: 600;
 }
 
-/* Force Diagram Boxes */
-.force-diagrams {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    flex-shrink: 0;
-}
-
-.force-diagrams.hidden {
-    display: none;
-}
-
-.force-box {
-    background-color: white;
-    border: 2px solid var(--secondary-color);
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    width: 130px;
-}
-
-.force-box h4 {
-    margin: 0 0 8px 0;
-    font-size: 0.85em;
-    color: var(--primary-color);
-    text-align: center;
-}
-
-.force-box canvas {
-    display: block;
-    width: 100%;
-    height: auto;
-}
-
 /* Tab Navigation */
 .tab-navigation {
     display: flex;

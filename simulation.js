@@ -500,50 +500,66 @@ class AtwoodMachine {
     }
     
     drawForceArrowsInBoxes() {
-        // Draw force diagrams in separate canvases
-        this.drawForceBox('forceCanvas1', this.mass1, 'm₁');
-        this.drawForceBox('forceCanvas2', this.mass2, 'm₂');
+        // Draw force diagrams directly on the canvas in the upper corners
+        const boxWidth = 110;
+        const boxHeight = 140;
+        const padding = 15;
+        
+        // Left box position (Mass 1)
+        const leftBoxX = padding;
+        const leftBoxY = 150;
+        this.drawForceBoxOnCanvas(leftBoxX, leftBoxY, boxWidth, boxHeight, this.mass1, 'm₁');
+        
+        // Right box position (Mass 2)
+        const rightBoxX = this.canvasWidth - boxWidth - padding;
+        const rightBoxY = 150;
+        this.drawForceBoxOnCanvas(rightBoxX, rightBoxY, boxWidth, boxHeight, this.mass2, 'm₂');
     }
     
-    drawForceBox(canvasId, mass, label) {
-        const canvas = document.getElementById(canvasId);
-        if (!canvas) return;
+    drawForceBoxOnCanvas(boxX, boxY, boxWidth, boxHeight, mass, label) {
+        const ctx = this.ctx;
+        const centerX = boxX + boxWidth / 2;
+        const centerY = boxY + boxHeight / 2;
         
-        const ctx = canvas.getContext('2d');
-        const width = canvas.width;
-        const height = canvas.height;
-        const centerX = width / 2;
-        const centerY = height / 2;
+        // Draw box background
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
         
-        // Clear canvas
-        ctx.clearRect(0, 0, width, height);
+        // Draw box border
+        ctx.strokeStyle = '#2fa4e7';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+        
+        // Draw title
+        ctx.fillStyle = '#2c3e50';
+        ctx.font = 'bold 11px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${label} Forces`, centerX, boxY + 12);
         
         // Calculate forces
         const gravity = mass * this.g;
-        const arrowScale = 3; // pixels per Newton
-        const gravityLength = Math.min(gravity * arrowScale, 50);
-        const tensionLength = Math.min(this.tension * arrowScale, 50);
+        const arrowScale = 2.5;
+        const gravityLength = Math.min(gravity * arrowScale, 40);
+        const tensionLength = Math.min(this.tension * arrowScale, 40);
         
-        // Draw mass box (representing center of mass)
+        // Draw mass box (center of mass)
+        const massBoxSize = 20;
         ctx.fillStyle = label === 'm₁' ? '#2fa4e7' : '#e74c3c';
-        ctx.fillRect(centerX - 15, centerY - 15, 30, 30);
+        ctx.fillRect(centerX - massBoxSize/2, centerY - massBoxSize/2, massBoxSize, massBoxSize);
         ctx.strokeStyle = '#2c3e50';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(centerX - 15, centerY - 15, 30, 30);
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(centerX - massBoxSize/2, centerY - massBoxSize/2, massBoxSize, massBoxSize);
         
         // Draw mass label
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 12px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(label, centerX, centerY);
+        ctx.font = 'bold 10px Arial';
+        ctx.fillText(label, centerX, centerY + 3);
         
-        // Draw gravity arrow (downward from center - red)
+        // Draw gravity arrow (downward - red)
         ctx.strokeStyle = '#e74c3c';
         ctx.fillStyle = '#e74c3c';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 2.5;
         
-        // Arrow shaft - starts FROM center of mass
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
         ctx.lineTo(centerX, centerY + gravityLength);
@@ -552,29 +568,24 @@ class AtwoodMachine {
         // Arrow head
         ctx.beginPath();
         ctx.moveTo(centerX, centerY + gravityLength);
-        ctx.lineTo(centerX - 6, centerY + gravityLength - 10);
-        ctx.lineTo(centerX + 6, centerY + gravityLength - 10);
+        ctx.lineTo(centerX - 5, centerY + gravityLength - 8);
+        ctx.lineTo(centerX + 5, centerY + gravityLength - 8);
         ctx.closePath();
         ctx.fill();
         
-        // Label for gravity with white background
-        const gravLabelY = centerY + gravityLength / 2;
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-        ctx.fillRect(centerX + 8, gravLabelY - 18, 42, 28);
-        
+        // Label for gravity
         ctx.fillStyle = '#2c3e50';
-        ctx.font = 'bold 12px Arial';
+        ctx.font = 'bold 9px Arial';
         ctx.textAlign = 'left';
-        ctx.fillText(`${label}g`, centerX + 12, gravLabelY - 5);
-        ctx.font = 'bold 11px Arial';
-        ctx.fillText(`${gravity.toFixed(1)}N`, centerX + 12, gravLabelY + 8);
+        ctx.fillText(`${label}g`, centerX + 8, centerY + gravityLength / 2 - 3);
+        ctx.font = '9px Arial';
+        ctx.fillText(`${gravity.toFixed(1)}N`, centerX + 8, centerY + gravityLength / 2 + 8);
         
-        // Draw tension arrow (upward from center - blue)
+        // Draw tension arrow (upward - blue)
         ctx.strokeStyle = '#3498db';
         ctx.fillStyle = '#3498db';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 2.5;
         
-        // Arrow shaft - starts FROM center of mass
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
         ctx.lineTo(centerX, centerY - tensionLength);
@@ -583,22 +594,18 @@ class AtwoodMachine {
         // Arrow head
         ctx.beginPath();
         ctx.moveTo(centerX, centerY - tensionLength);
-        ctx.lineTo(centerX - 6, centerY - tensionLength + 10);
-        ctx.lineTo(centerX + 6, centerY - tensionLength + 10);
+        ctx.lineTo(centerX - 5, centerY - tensionLength + 8);
+        ctx.lineTo(centerX + 5, centerY - tensionLength + 8);
         ctx.closePath();
         ctx.fill();
         
-        // Label for tension with white background
-        const tensLabelY = centerY - tensionLength / 2;
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-        ctx.fillRect(centerX + 8, tensLabelY - 18, 42, 28);
-        
+        // Label for tension
         ctx.fillStyle = '#2c3e50';
-        ctx.font = 'bold 12px Arial';
+        ctx.font = 'bold 9px Arial';
         ctx.textAlign = 'left';
-        ctx.fillText('T', centerX + 12, tensLabelY - 5);
-        ctx.font = 'bold 11px Arial';
-        ctx.fillText(`${this.tension.toFixed(1)}N`, centerX + 12, tensLabelY + 8);
+        ctx.fillText('T', centerX + 8, centerY - tensionLength / 2 - 3);
+        ctx.font = '9px Arial';
+        ctx.fillText(`${this.tension.toFixed(1)}N`, centerX + 8, centerY - tensionLength / 2 + 8);
     }
     
     drawForceArrows(mass1X, mass1Y, mass2X, mass2Y) {
@@ -711,12 +718,6 @@ class AtwoodMachine {
     
     setShowForceArrows(show) {
         this.showForceArrows = show;
-        const forceDiagrams = document.getElementById('forceDiagrams');
-        if (show) {
-            forceDiagrams.classList.remove('hidden');
-        } else {
-            forceDiagrams.classList.add('hidden');
-        }
         this.draw();
     }
 }
